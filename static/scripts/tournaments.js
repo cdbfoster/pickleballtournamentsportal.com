@@ -62,6 +62,29 @@ const abbreviations = {
   "wyoming": "WY",
 };
 
+var tournamentListings = null;
+
+fetch("/tournaments/fetch")
+  .then(response => response.json())
+  .then(data => {
+    tournamentListings = data;
+    m.redraw();
+  })
+  .catch(error => console.error(error));
+
+class Loading {
+  view() {
+    return m("div.loading", [
+      m("p", "Fetching data from PickleballTournaments.com"),
+      m("div.loading-indicator", [
+        m("div.loading-indicator-pip"),
+        m("div.loading-indicator-pip"),
+        m("div.loading-indicator-pip"),
+      ]),
+    ]);
+  }
+}
+
 class Main {
   constructor() {
     this.nameFilter = "";
@@ -465,7 +488,7 @@ function printDate(isoDate) {
 let main = document.querySelector("main");
 
 m.mount(main, {
-  view: function (vnode) {
-    return m(Main);
+  view: function () {
+    return tournamentListings !== null ? m(Main) : m(Loading);
   },
 });

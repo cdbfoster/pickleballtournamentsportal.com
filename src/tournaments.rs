@@ -6,7 +6,9 @@ use std::time::Duration;
 use chrono::prelude::*;
 use once_cell::sync::Lazy;
 use regex::Regex;
-use rocket::serde::{json, Serialize};
+use rocket::http::Status;
+use rocket::serde::json::Json;
+use rocket::serde::Serialize;
 use rocket::State;
 use rocket_dyn_templates::Template;
 use scraper::{ElementRef, Html, Selector};
@@ -14,7 +16,9 @@ use scraper::{ElementRef, Html, Selector};
 use crate::client::Client;
 use crate::util::Cache;
 
-#[derive(Debug, Serialize)]
+pub type Result<T> = std::result::Result<T, (Status, &'static str)>;
+
+#[derive(Clone, Debug, Serialize)]
 #[serde(crate = "rocket::serde")]
 #[serde(rename_all = "camelCase")]
 pub struct TournamentListing {
@@ -28,7 +32,7 @@ pub struct TournamentListing {
     registration_status: RegistrationStatus,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Clone, Debug, Serialize)]
 #[serde(crate = "rocket::serde")]
 #[serde(rename_all = "camelCase")]
 pub enum RegistrationStatus {
@@ -50,10 +54,16 @@ pub enum RegistrationStatus {
 }
 
 #[get("/tournaments")]
-pub async fn get_tournaments(
+pub fn tournament_search() -> Template {
+    let context: HashMap<String, String> = HashMap::new();
+    Template::render("tournaments", &context)
+}
+
+#[get("/tournaments/fetch")]
+pub async fn fetch_tournaments(
     client: Client<'_>,
     tournament_listings_cache: &State<Cache<Vec<TournamentListing>>>,
-) -> Template {
+) -> Result<Json<Vec<TournamentListing>>> {
     let tournament_listings = tournament_listings_cache
         .retrieve_or_update(Duration::from_secs(10 * 60), || async {
             let response = client
@@ -82,12 +92,7 @@ pub async fn get_tournaments(
         .await
         .unwrap();
 
-    let json_string = json::serde_json::to_string(&*tournament_listings).unwrap();
-
-    let context = std::array::IntoIter::new([("tournament_listings", json_string)])
-        .collect::<HashMap<_, _>>();
-
-    Template::render("tournaments", &context)
+    Ok(Json(tournament_listings.clone()))
 }
 
 struct Selectors {
