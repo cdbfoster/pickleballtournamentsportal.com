@@ -1,0 +1,6 @@
+{% extends "base" %}
+{% block body %}
+    <main id="tournaments"></main>
+    <script>var tournamentListings = {{ tournament_listings | safe }};</script>
+    <script src="scripts/tournaments.js"></script>
+{%- endblock body %}

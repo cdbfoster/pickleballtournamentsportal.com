@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8" />
+    <link rel="stylesheet" type="text/css" href="styles/main.css" />
+    <script src="scripts/mithril.js"></script><!--Get a minified version before deployment-->
+    <title>{% block title %}PickleballTournamentsPortal.com{% endblock title %}</title>
+    {%- block head %}{% endblock head %}
+  </head>
+  <body>
+    <header>
+      <img id="logo" src="images/ptp.png" />
+      <h1>Pickleball Tournaments Portal</h1>
+      {%- block header %}{% endblock header %}
+    </header>
+    {%- block body %}{% endblock body %}
+    <footer>{%- block footer %}{% endblock footer %}</footer>
+  </body>
+</html>

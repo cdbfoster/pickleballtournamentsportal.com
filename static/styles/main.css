@@ -1,0 +1,254 @@
+@import url('https://fonts.googleapis.com/css2?family=Fjalla+One&family=Nunito:wght@400;700&display=swap');
+
+*, ::after, ::before {
+  box-sizing: border-box;
+}
+
+a {
+  color: #4169E1;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+body {
+  display: flex;
+  flex-flow: column nowrap;
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2 {
+  font-family: "Fjalla One", sans-serif;
+}
+
+h1 {
+  font-size: 2.5em;
+}
+
+h2 {
+  font-size: 2em;
+}
+
+h3 {
+  font-family: "Nunito", sans-serif;
+  font-size: 1.4em;
+}
+
+header {
+  align-items: center;
+  background-color: #121E40;
+  display: flex;
+  gap: 1em;
+  padding: 1em;
+}
+
+header #logo {
+  width: 60px;
+}
+
+header h1 {
+  color: white;
+  margin: 0;
+}
+
+/* Tournaments ============================================================= */
+
+#tournaments {
+  align-items: start;
+  display: grid;
+  grid-column-gap: 2em;
+  grid-template-areas:
+    "search tournaments"
+    "search tournaments"
+    "search tournaments";
+  grid-template-columns: minmax(16em, min(25em, 25%)) 1fr;
+  margin: 1em;
+  max-width: 95em;
+  position: relative;
+}
+
+#tournaments #filter {
+  border: 2px solid #4169E1;
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 0.75em;
+  grid-area: search;
+  position: sticky;
+  top: 1em;
+}
+
+#tournaments #filter h2 {
+  background-color: #4169E1;
+  color: white;
+  font-family: "Nunito", sans-serif;
+  font-size: 1.5em;
+  margin: 0;
+  padding: 0.5em;
+}
+
+#tournaments #filter > :not(:first-child) {
+  margin: 0 1em;
+}
+
+#tournaments #filter input[type="text"] {
+  border: 1px solid #ced4d9;
+  border-radius: 4px;
+  font-size: 1em;
+  padding: 0.5em 0.75em;
+  transition: box-shadow 0.15s ease-in-out;
+  width: 100%;
+}
+
+#tournaments #filter input[type="text"]:focus {
+  box-shadow: 0 0 0 0.2em rgba(0, 123, 255, 0.25);
+  outline: 0;
+}
+
+#tournaments #filter #view-toggles {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 0.25em;
+  list-style: none;
+  margin-bottom: 1em;
+  padding: 0;
+}
+
+#tournaments #filter #view-toggles input[type="checkbox"] {
+  appearance: none;
+  border: 1px solid #ced4d9;
+  border-radius: 4px;
+  height: 1.5em;
+  margin: 0 0.75em 0 0.25em;
+  padding: 0.2em;
+  position: relative;
+  vertical-align: text-bottom;
+  width: 1.5em;
+}
+
+#tournaments #filter #view-toggles input[type="checkbox"]:checked::before {
+  background-color: #4169E1;
+  border-radius: 3px;
+  content: "";
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+#tournaments .tournament-list {
+  display: flex;
+  flex-flow: column nowrap;
+  padding: 1em;
+}
+
+#tournaments .tournament-list:not(:last-child) {
+  padding-bottom: 0;
+}
+
+#tournaments .tournament-list h2 {
+  margin: 0;
+}
+
+#tournaments .tournament-list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#tournaments .tournament-listing {
+  border-bottom: 1px solid #DDDDDD;
+  display: grid;
+  grid-template-areas:
+    "name logo status"
+    "location logo tags"
+    "dates logo tags";
+  grid-template-columns: minmax(0, 5fr) minmax(250px, 3fr) minmax(0, 3fr);
+  grid-template-rows: min-content min-content 1fr;
+  margin: 1em 0;
+  padding: 1em 0;
+}
+
+#tournaments .tournament-listing p {
+  margin: 0 0 0.75em;
+}
+
+#tournaments .tournament-listing .name {
+  grid-area: name;
+  margin: 0 0 0.75em;
+}
+
+#tournaments .tournament-listing .location {
+  grid-area: location;
+}
+
+#tournaments .tournament-listing .dates {
+  grid-area: dates;
+  font-family: "Nunito", sans-serif;
+  font-weight: 700;
+}
+
+#tournaments .tournament-listing .tags {
+  align-items: center;
+  display: flex;
+  gap: 1em;
+  grid-area: tags;
+}
+
+#tournaments .tournament-listing .logo {
+  grid-area: logo;
+  justify-self: center;
+}
+
+#tournaments .tournament-listing .registration-status {
+  grid-area: status;
+}
+
+#tournaments .tournament-listing .registration-status .status {
+  font-weight: 600;
+}
+
+#tournaments .tournament-listing .registration-status .detail {
+  font-size: 0.8em;
+}
+
+#tournaments .tournament-listing .registration-status .closed {
+  color: #882222;
+}
+
+#tournaments .tournament-listing .registration-status .open {
+  color: #228822;
+}
+
+#tournaments .tournament-listing .registration-status .open-soon {
+  color: #222288;
+}
+
+#tournaments .tournament-listing .tags > li > img {
+  height: auto;
+  max-height: 100px;
+  max-width: 100px;
+  width: auto;
+}
+
+#tournaments .tournament-listing .logo > img {
+  height: auto;
+  max-height: 200px;
+  max-width: 200px;
+  width: auto;
+}
+
+#tournaments .load-more {
+  background-color: #EAEAFF;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: "Nunito", sans-serif;
+  font-size: 1.5em;
+}
+
+#tournaments .load-more:hover {
+  background-color: #DDDDFF;
+}
