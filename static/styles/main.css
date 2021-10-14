@@ -316,3 +316,74 @@ main {
 #tournaments .load-more:hover {
   background-color: #DDDDFF;
 }
+
+@media (max-width: 1000px) {
+  #tournaments {
+    align-items: stretch;
+    display: flex;
+    flex-flow: column nowrap;
+  }
+
+  #tournaments #filter {
+    position: unset;
+  }
+
+  #tournaments .loading {
+    flex-grow: 1;
+  }
+}
+
+@media (max-width: 825px) {
+  header h1 {
+    font-size: 2em;
+  }
+
+  #tournaments .tournament-listing {
+    grid-template-areas:
+    "name logo"
+    "location logo"
+    "dates logo"
+    "status tags";
+    grid-template-columns: minmax(0, 5fr) minmax(175px, 3fr);
+    grid-template-rows: min-content;
+  }
+
+  #tournaments .tournament-listing .tags {
+    justify-content: flex-end;
+  }
+
+  #tournaments .tournament-listing .tags > li > img {
+    max-height: 75px;
+    max-width: 75px;
+  }
+
+  #tournaments .tournament-listing .logo > img {
+    max-height: 150px;
+    max-width: 150px;
+  }
+}
+
+@media (max-width: 550px) {
+  header h1 {
+    font-size: 1.5em;
+  }
+
+  #tournaments .tournament-listing {
+    grid-template-areas:
+    "name name"
+    "location location"
+    "dates dates"
+    "status status"
+    "logo tags";
+    grid-template-columns: minmax(175px, 1fr) auto;
+    grid-template-rows: min-content;
+  }
+
+  #tournaments .tournament-listing .tags {
+    gap: 0.25em;
+  }
+
+  #tournaments .tournament-listing .name {
+    font-size: 1.2em;
+  }
+}
