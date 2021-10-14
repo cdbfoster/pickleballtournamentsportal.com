@@ -115,6 +115,17 @@ main {
   50% { transform: scale(1, 1); }
 }
 
+/* Welcome ================================================================= */
+
+#welcome {
+  align-self: center;
+  max-width: 40em;
+}
+
+#welcome p {
+  line-height: 1.5em;
+}
+
 /* Tournaments ============================================================= */
 
 #tournaments {

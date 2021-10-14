@@ -1,8 +1,11 @@
 {% extends "base" %}
 {% block body %}
-    <main>
+    <main id="welcome">
       <h2>What is this place?</h2>
-      <p>This site is a work in progress. More on that later...</p>
-      <p>Check out the <a href="/tournaments">Tournament Search</a> page.</p>
+      <p>As we all know, <a href="https://www.pickleballtournaments.com">PickleballTournaments.com</a> is painful to use. To alleviate some of this pain, I've begun this project to rework the interface of some of the more commonly used features of the site.  All of the data is still the same -- just with a modern interface.</p>
+      <p>So far, I've improved these interfaces:</p>
+      <ul>
+        <li><a href="/tournaments">Tournament Search</a></li>
+      </ul>
     </main>
 {%- endblock body %}
