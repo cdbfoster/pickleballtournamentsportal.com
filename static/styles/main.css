@@ -31,6 +31,7 @@ h1 {
 
 h2 {
   font-size: 2em;
+  margin: 0 0 0.5em;
 }
 
 h3 {
@@ -43,6 +44,7 @@ header {
   background-color: #121E40;
   display: flex;
   gap: 1em;
+  line-height: 0;
   padding: 1em;
 }
 
@@ -53,6 +55,10 @@ header #logo {
 header h1 {
   color: white;
   margin: 0;
+}
+
+main {
+  padding: 1em;
 }
 
 /* Tournaments ============================================================= */
@@ -66,7 +72,6 @@ header h1 {
     "search tournaments"
     "search tournaments";
   grid-template-columns: minmax(16em, min(25em, 25%)) 1fr;
-  margin: 1em;
   max-width: 95em;
   position: relative;
 }

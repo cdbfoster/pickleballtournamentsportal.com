@@ -9,7 +9,7 @@
   </head>
   <body>
     <header>
-      <img id="logo" src="images/ptp.png" />
+      <a href="/"><img id="logo" src="images/ptp.png" /></a>
       <h1>Pickleball Tournaments Portal</h1>
       {%- block header %}{% endblock header %}
     </header>
