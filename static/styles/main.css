@@ -385,6 +385,19 @@ main {
     font-size: 1.5em;
   }
 
+  #tournaments #filter h2 {
+    font-size: 1.2em;
+  }
+
+  #tournaments #filter #view-toggles {
+    flex-flow: column wrap;
+    max-height: 3em;
+  }
+
+  #tournaments #filter #view-toggles li {
+    flex-grow: 1;
+  }
+
   #tournaments .tournament-listing {
     grid-template-areas:
     "name name"
