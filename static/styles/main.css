@@ -63,6 +63,7 @@ html {
 }
 
 main {
+  max-width: 95em;
   padding: 1em;
   flex-grow: 1;
 }
@@ -118,8 +119,14 @@ main {
 /* Welcome ================================================================= */
 
 #welcome {
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+#welcome #intro {
   align-self: center;
   max-width: 40em;
+  padding: 1em;
 }
 
 #welcome p {
@@ -137,7 +144,6 @@ main {
     "search tournaments"
     "search tournaments";
   grid-template-columns: minmax(16em, min(25em, 25%)) 1fr;
-  max-width: 95em;
   position: relative;
 }
 
