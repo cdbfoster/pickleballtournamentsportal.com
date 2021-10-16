@@ -68,13 +68,22 @@ pub async fn fetch_tournaments(
         .retrieve_or_update(Duration::from_secs(10 * 60), || async {
             let response = client
                 .get("https://www.pickleballtournaments.com/pbt_tlisting.pl?when=F")
-                .await;
+                .send()
+                .await
+                .unwrap();
 
             let future_raw_html = response.text().await.unwrap();
 
             let response = client
                 .get("https://www.pickleballtournaments.com/pbt_tlisting.pl?when=P")
-                .await;
+                .header(
+                    "Referer",
+                    "https://www.pickleballtournaments.com/pbt_tlisting.pl?when=F",
+                )
+                .header("Sec-Fetch-Site", "same-origin")
+                .send()
+                .await
+                .unwrap();
 
             let past_raw_html = response.text().await.unwrap();
 
