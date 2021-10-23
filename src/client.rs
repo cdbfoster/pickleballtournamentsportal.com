@@ -112,7 +112,7 @@ impl<'r> FromRequest<'r> for Client<'r> {
         let client = ReqwestClient::builder()
             .default_headers(default_headers.clone())
             .cookie_provider(client_cookies)
-            .redirect(Policy::none())
+            //.redirect(Policy::none())
             .build()
             .unwrap();
 

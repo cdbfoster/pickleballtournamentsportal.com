@@ -6,7 +6,8 @@ use std::time::Duration;
 use chrono::prelude::*;
 use once_cell::sync::Lazy;
 use regex::Regex;
-use rocket::http::Status;
+use reqwest::{Error, Response};
+use rocket::response::Responder;
 use rocket::serde::json::Json;
 use rocket::serde::Serialize;
 use rocket::State;
@@ -15,8 +16,6 @@ use scraper::{ElementRef, Html, Selector};
 
 use crate::client::Client;
 use crate::util::Cache;
-
-pub type Result<T> = std::result::Result<T, (Status, &'static str)>;
 
 #[derive(Clone, Debug, Serialize)]
 #[serde(crate = "rocket::serde")]
@@ -59,31 +58,83 @@ pub fn tournament_search() -> Template {
     Template::render("tournaments", &context)
 }
 
+#[derive(Clone, Debug, Serialize)]
+#[serde(crate = "rocket::serde")]
+pub struct CaptchaDetails {
+    url: String,
+    sitekey: String,
+}
+
+#[derive(Debug, Responder)]
+pub enum ScrapeError {
+    #[response(status = 200, content_type = "json")]
+    Captcha(Json<CaptchaDetails>),
+    #[response(status = 500)]
+    Error(String),
+}
+
+pub type ScrapeResult<T> = Result<T, ScrapeError>;
+
+async fn map_response(response: Result<Response, Error>, error: &str) -> ScrapeResult<Response> {
+    match response {
+        Ok(r) => {
+            let captcha_url = Regex::new(r"validate\.perfdrive\.com").unwrap();
+            if captcha_url.is_match(r.url().as_str()) {
+                let url = r.url().to_string();
+
+                let html_raw = r.text().await.unwrap();
+                let html = Html::parse_document(&html_raw);
+
+                let captcha_selector = Selector::parse(".h-captcha").unwrap();
+                let captcha_html = html.select(&captcha_selector).next().unwrap().html();
+
+                let sitekey_pattern = Regex::new(r#"sitekey="([^"]+)""#).unwrap();
+                let sitekey = sitekey_pattern.captures(&captcha_html).unwrap()[1].to_owned();
+
+                Err(ScrapeError::Captcha(Json(CaptchaDetails { url, sitekey })))
+            } else {
+                Ok(r)
+            }
+        }
+        Err(e) => Err(ScrapeError::Error(if let Some(status) = e.status() {
+            format!("{}:\n  status: {}\n  error: {}", error, status.as_u16(), e)
+        } else {
+            format!("{}:\n  error: {}", error, e)
+        })),
+    }
+}
+
 #[get("/tournaments/fetch")]
 pub async fn fetch_tournaments(
     client: Client<'_>,
     tournament_listings_cache: &State<Cache<Vec<TournamentListing>>>,
-) -> Result<Json<Vec<TournamentListing>>> {
+) -> ScrapeResult<Json<Vec<TournamentListing>>> {
     let tournament_listings = tournament_listings_cache
-        .retrieve_or_update(Duration::from_secs(10 * 60), || async {
-            let response = client
-                .get("https://www.pickleballtournaments.com/pbt_tlisting.pl?when=F")
-                .send()
-                .await
-                .unwrap();
+        .retrieve_or_update(Duration::from_secs(60 * 60), || async {
+            let response = map_response(
+                client
+                    .get("https://www.pickleballtournaments.com/pbt_tlisting.pl?when=F")
+                    .send()
+                    .await,
+                "could not load future tournaments",
+            )
+            .await?;
 
             let future_raw_html = response.text().await.unwrap();
 
-            let response = client
-                .get("https://www.pickleballtournaments.com/pbt_tlisting.pl?when=P")
-                .header(
-                    "Referer",
-                    "https://www.pickleballtournaments.com/pbt_tlisting.pl?when=F",
-                )
-                .header("Sec-Fetch-Site", "same-origin")
-                .send()
-                .await
-                .unwrap();
+            let response = map_response(
+                client
+                    .get("https://www.pickleballtournaments.com/pbt_tlisting.pl?when=P")
+                    .header(
+                        "Referer",
+                        "https://www.pickleballtournaments.com/pbt_tlisting.pl?when=F",
+                    )
+                    .header("Sec-Fetch-Site", "same-origin")
+                    .send()
+                    .await,
+                "could not load past tournaments",
+            )
+            .await?;
 
             let past_raw_html = response.text().await.unwrap();
 
@@ -96,9 +147,9 @@ pub async fn fetch_tournaments(
                 .map(parse_tournament_listing)
                 .collect::<Vec<_>>();
 
-            tournament_listings
+            Ok(tournament_listings)
         })
-        .await
+        .await?
         .unwrap();
 
     Ok(Json(tournament_listings.clone()))
