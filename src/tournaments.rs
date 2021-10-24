@@ -58,19 +58,35 @@ pub fn tournament_search() -> Template {
     Template::render("tournaments", &context)
 }
 
+// The following are single-variant enums so they serialize nicely as {"<tournaments|captcha|error>": value}.
+
 #[derive(Clone, Debug, Serialize)]
 #[serde(crate = "rocket::serde")]
-pub struct CaptchaDetails {
-    url: String,
-    sitekey: String,
+#[serde(rename_all = "camelCase")]
+pub enum TournamentListPayload {
+    Tournaments(Vec<TournamentListing>),
+}
+
+#[derive(Clone, Debug, Serialize)]
+#[serde(crate = "rocket::serde")]
+#[serde(rename_all = "camelCase")]
+pub enum CaptchaPayload {
+    Captcha { url: String, sitekey: String },
+}
+
+#[derive(Clone, Debug, Serialize)]
+#[serde(crate = "rocket::serde")]
+#[serde(rename_all = "camelCase")]
+pub enum ErrorPayload {
+    Error { reason: String },
 }
 
 #[derive(Debug, Responder)]
 pub enum ScrapeError {
     #[response(status = 200, content_type = "json")]
-    Captcha(Json<CaptchaDetails>),
+    Captcha(Json<CaptchaPayload>),
     #[response(status = 500)]
-    Error(String),
+    Error(Json<ErrorPayload>),
 }
 
 pub type ScrapeResult<T> = Result<T, ScrapeError>;
@@ -91,16 +107,21 @@ async fn map_response(response: Result<Response, Error>, error: &str) -> ScrapeR
                 let sitekey_pattern = Regex::new(r#"sitekey="([^"]+)""#).unwrap();
                 let sitekey = sitekey_pattern.captures(&captcha_html).unwrap()[1].to_owned();
 
-                Err(ScrapeError::Captcha(Json(CaptchaDetails { url, sitekey })))
+                Err(ScrapeError::Captcha(Json(CaptchaPayload::Captcha {
+                    url,
+                    sitekey,
+                })))
             } else {
                 Ok(r)
             }
         }
-        Err(e) => Err(ScrapeError::Error(if let Some(status) = e.status() {
-            format!("{}:\n  status: {}\n  error: {}", error, status.as_u16(), e)
-        } else {
-            format!("{}:\n  error: {}", error, e)
-        })),
+        Err(e) => Err(ScrapeError::Error(Json(ErrorPayload::Error {
+            reason: if let Some(status) = e.status() {
+                format!("{}:\n  status: {}\n  error: {}", error, status.as_u16(), e)
+            } else {
+                format!("{}:\n  error: {}", error, e)
+            },
+        }))),
     }
 }
 
@@ -108,7 +129,7 @@ async fn map_response(response: Result<Response, Error>, error: &str) -> ScrapeR
 pub async fn fetch_tournaments(
     client: Client<'_>,
     tournament_listings_cache: &State<Cache<Vec<TournamentListing>>>,
-) -> ScrapeResult<Json<Vec<TournamentListing>>> {
+) -> ScrapeResult<Json<TournamentListPayload>> {
     let tournament_listings = tournament_listings_cache
         .retrieve_or_update(Duration::from_secs(60 * 60), || async {
             let response = map_response(
@@ -152,7 +173,9 @@ pub async fn fetch_tournaments(
         .await?
         .unwrap();
 
-    Ok(Json(tournament_listings.clone()))
+    Ok(Json(TournamentListPayload::Tournaments(
+        tournament_listings.clone(),
+    )))
 }
 
 struct Selectors {

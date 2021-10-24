@@ -63,14 +63,34 @@ const abbreviations = {
 };
 
 var tournamentListings = null;
+var captcha = null;
 
 fetch("/tournaments/fetch")
   .then(response => response.json())
   .then(data => {
-    tournamentListings = data;
+    if ("tournaments" in data) {
+      tournamentListings = data.tournaments;
+    } else if ("captcha" in data) {
+      captcha = data.captcha;
+    } else {
+      console.error("Error: " + data.error.reason);
+    }
     m.redraw();
   })
   .catch(error => console.error(error));
+
+class Captcha {
+  view() {
+    return m("div.captcha", [
+      m("h1", "Please fill out this captcha"),
+      m("p", [
+        "Due to the way this site works, we get captcha'd by ",
+        m("a", { href: "https://www.pickleballtournaments.com" }, "PickleballTournaments.com"),
+        " pretty regularly. Please fill out this captcha to continue:",
+      ]),
+    ]);
+  }
+}
 
 class Loading {
   view() {
@@ -489,6 +509,6 @@ let main = document.querySelector("main");
 
 m.mount(main, {
   view: function () {
-    return tournamentListings !== null ? m(Main) : m(Loading);
+    return captcha !== null ? m(Captcha) : (tournamentListings !== null ? m(Main) : m(Loading));
   },
 });
