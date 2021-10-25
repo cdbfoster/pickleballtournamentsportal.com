@@ -80,6 +80,27 @@ fetch("/tournaments/fetch")
   .catch(error => console.error(error));
 
 class Captcha {
+  constructor() {
+    this.buttonEnabled = false;
+  }
+
+  oncreate(vnode) {
+    let captchaContainer = vnode.dom.querySelector(".h-captcha");
+
+    let observer = new MutationObserver((mutations) => {
+      for (let mutation of mutations) {
+        if (mutation.type == "attributes" && mutation.attributeName == "data-hcaptcha-response") {
+          this.buttonEnabled = mutation.target.getAttribute("data-hcaptcha-response") !== "";
+          m.redraw();
+        }
+      }
+    });
+    observer.observe(captchaContainer, {
+      subtree: true,
+      attributes: true,
+    });
+  }
+
   view() {
     return m("div.captcha", [
       m("h1", "Please fill out this captcha"),
@@ -87,6 +108,11 @@ class Captcha {
         "Due to the way this site works, we get captcha'd by ",
         m("a", { href: "https://www.pickleballtournaments.com" }, "PickleballTournaments.com"),
         " pretty regularly. Please fill out this captcha to continue:",
+      ]),
+      m("div.captcha-body", [
+        m("script", { src: "https://hcaptcha.com/1/api.js" }),
+        m("div.h-captcha", { "data-sitekey": captcha.sitekey }),
+        m("button", { class: this.buttonEnabled ? "" : "disabled" }, "Submit"),
       ]),
     ]);
   }

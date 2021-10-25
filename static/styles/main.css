@@ -22,6 +22,58 @@ body {
   padding: 0;
 }
 
+.captcha {
+  display: grid;
+  grid-gap: 2em;
+  grid-template-rows: 1fr min-content 2fr;
+  justify-items: center;
+}
+
+.captcha > * {
+  margin: 0;
+}
+
+.captcha > :first-child {
+  align-self: end;
+}
+
+.captcha > :last-child {
+  align-self: start;
+}
+
+.captcha > p {
+  line-height: 1.5em;
+  max-width: 28em;
+}
+
+.captcha-body {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 0.5em;
+}
+
+.captcha-body > button {
+  background-color: #F0F0FF;
+  border: 3px solid #C5D4FF;
+  border-radius: 5px;
+  color: #333333;
+  cursor: pointer;
+  font-family: "Nunito", sans-serif;
+  font-size: 1.2em;
+  padding: 0.5em;
+}
+
+.captcha-body > button.disabled {
+  background-color: white;
+  border: 3px solid #EEEEEE;
+  color: #777777;
+  cursor: initial;
+}
+
+.captcha-body > button:not(.disabled):hover {
+  background-color: #DDDDFF;
+}
+
 h1, h2 {
   font-family: "Fjalla One", sans-serif;
 }
@@ -148,6 +200,11 @@ main {
 }
 
 #tournaments .loading {
+  align-self: stretch;
+  grid-area: search / search / tournaments / tournaments;
+}
+
+#tournaments .captcha {
   align-self: stretch;
   grid-area: search / search / tournaments / tournaments;
 }
@@ -345,6 +402,10 @@ main {
     position: unset;
   }
 
+  #tournaments .captcha {
+    flex-grow: 1;
+  }
+
   #tournaments .loading {
     flex-grow: 1;
   }
@@ -383,6 +444,10 @@ main {
 @media (max-width: 550px) {
   header h1 {
     font-size: 1.5em;
+  }
+
+  .captcha > h1 {
+    font-size: 1.9em;
   }
 
   #tournaments #filter h2 {
