@@ -118,6 +118,7 @@ main {
   max-width: 95em;
   padding: 1em;
   flex-grow: 1;
+  margin: 0 auto;
 }
 
 .loading {
