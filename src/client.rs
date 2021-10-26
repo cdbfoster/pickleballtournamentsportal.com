@@ -185,7 +185,7 @@ impl<'r> FromRequest<'r> for Client<'r> {
         let incoming_cookies = try_outcome!(request.guard::<&CookieJar<'_>>().await);
 
         let client = ClientBuilder::new(incoming_cookies)
-            .forward_incoming_cookies(Url::parse("www.pickleballtournaments.com").unwrap())
+            .forward_incoming_cookies(Url::parse("https://www.pickleballtournaments.com").unwrap())
             .default_header("Host", "www.pickleballtournaments.com")
             .build();
 
