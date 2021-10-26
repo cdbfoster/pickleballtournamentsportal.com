@@ -46,6 +46,14 @@ body {
   max-width: 28em;
 }
 
+.captcha > .loading-indicator, .captcha > .waiting {
+  font-size: 2em;
+}
+
+.captcha > .waiting {
+  text-align: center;
+}
+
 .captcha-body {
   display: flex;
   flex-flow: column nowrap;
@@ -415,6 +423,10 @@ main {
 @media (max-width: 825px) {
   header h1 {
     font-size: 2em;
+  }
+
+  .captcha > .waiting {
+    font-size: 1.75em;
   }
 
   #tournaments .tournament-listing {

@@ -81,7 +81,9 @@ fetch("/tournaments/fetch")
 
 class Captcha {
   constructor() {
-    this.buttonEnabled = false;
+    this.captchaFilled = false;
+    this.awaitingResponse = false;
+    this.failed = false;
   }
 
   oncreate(vnode) {
@@ -90,19 +92,63 @@ class Captcha {
     let observer = new MutationObserver((mutations) => {
       for (let mutation of mutations) {
         if (mutation.type == "attributes" && mutation.attributeName == "data-hcaptcha-response") {
-          this.buttonEnabled = mutation.target.getAttribute("data-hcaptcha-response") !== "";
+          this.captchaFilled = mutation.target.getAttribute("data-hcaptcha-response") !== "";
           m.redraw();
         }
       }
     });
+
     observer.observe(captchaContainer, {
       subtree: true,
       attributes: true,
     });
+
+    vnode.dom.querySelector(".captcha-body > button").addEventListener("click", (event) => {
+      if (event.target.className !== "") {
+        return;
+      }
+
+      this.awaitingResponse = true;
+      m.redraw();
+
+      let captchaFrame = vnode.dom.querySelector(".h-captcha > iframe");
+      let challengeResponse = captchaFrame.getAttribute("data-hcaptcha-response");
+
+      fetch("/uncaptcha", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          url: captcha.url,
+          challengeResponse: challengeResponse,
+        })
+      })
+      .then((response) => {
+        if (response.ok) {
+          location.reload();
+        } else {
+          this.failed = true;
+          this.awaitingResponse = false;
+          m.redraw();
+        }
+      })
+      .catch(error => console.error(error));
+    });
   }
 
   view() {
-    return m("div.captcha", [
+    return m("div.captcha", this.awaitingResponse ? [
+      m("h1.waiting", "Requesting access to PickleballTournaments.com"),
+      m("div.loading-indicator", [
+        m("div.loading-indicator-pip"),
+        m("div.loading-indicator-pip"),
+        m("div.loading-indicator-pip"),
+      ]),
+    ] : (this.failed ? [
+      m("h1", "Could not unblock"),
+      m("p", "Unfortunately we encountered an issue passing along the captcha information. Please try again later."),
+    ] : [
       m("h1", "Please fill out this captcha"),
       m("p", [
         "Due to the way this site works, we get captcha'd by ",
@@ -112,9 +158,9 @@ class Captcha {
       m("div.captcha-body", [
         m("script", { src: "https://hcaptcha.com/1/api.js" }),
         m("div.h-captcha", { "data-sitekey": captcha.sitekey }),
-        m("button", { class: this.buttonEnabled ? "" : "disabled" }, "Submit"),
+        m("button", { class: this.captchaFilled ? "" : "disabled" }, "Submit"),
       ]),
-    ]);
+    ]));
   }
 }
 
