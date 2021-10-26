@@ -14,6 +14,7 @@ use reqwest::{
 use rocket::http::{Cookie, CookieJar};
 use rocket::outcome::try_outcome;
 use rocket::request::{FromRequest, Outcome, Request};
+use rocket::serde::Serialize;
 
 pub struct Client<'r> {
     outgoing_cookies: &'r CookieJar<'r>,
@@ -26,6 +27,18 @@ impl<'r> Client<'r> {
         U: IntoUrl,
     {
         let request = self.client.get(url);
+
+        RequestBuilder {
+            client: self,
+            request,
+        }
+    }
+
+    pub fn post<U>(&self, url: U) -> RequestBuilder
+    where
+        U: IntoUrl,
+    {
+        let request = self.client.post(url);
 
         RequestBuilder {
             client: self,
@@ -135,6 +148,16 @@ impl<'r> RequestBuilder<'r> {
         Self {
             client: self.client,
             request: self.request.header(key, value),
+        }
+    }
+
+    pub fn form<T>(self, form: &T) -> Self
+    where
+        T: Serialize + ?Sized,
+    {
+        Self {
+            client: self.client,
+            request: self.request.form(form),
         }
     }
 
