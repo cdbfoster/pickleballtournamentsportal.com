@@ -6,7 +6,7 @@ use std::sync::Arc;
 
 use http::Error as HttpError;
 use reqwest::cookie::{CookieStore, Jar};
-use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
+use reqwest::header::{HeaderMap, HeaderName, HeaderValue, IntoHeaderName};
 use reqwest::redirect::Policy;
 use reqwest::{
     Client as ReqwestClient, Error, IntoUrl, RequestBuilder as ReqwestRequestBuilder, Response, Url,
@@ -30,6 +30,91 @@ impl<'r> Client<'r> {
         RequestBuilder {
             client: self,
             request,
+        }
+    }
+}
+
+pub struct ClientBuilder<'r> {
+    cookies: &'r CookieJar<'r>,
+
+    incoming_cookies_url: Option<Url>,
+    default_headers: HeaderMap,
+    redirect_policy: Option<Policy>,
+}
+
+impl<'r> ClientBuilder<'r> {
+    pub fn new(cookies: &'r CookieJar<'r>) -> Self {
+        let default_headers = std::array::IntoIter::new([
+            ("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"),
+            ("Accept-Language", "en-US,en;q=0.5"),
+            ("Connection", "keep-alive"),
+            ("Sec-Fetch-Dest", "document"),
+            ("Sec-Fetch-Mode", "navigate"),
+            ("Sec-Fetch-Site", "none"),
+            ("Sec-Fetch-User", "?1"),
+            ("Upgrade-Insecure-Requests", "1"),
+            (
+                "User-Agent",
+                "Mozilla/5.0 (X11; Linux x86_64; rv:93.0) Gecko/20100101 Firefox/93.0",
+            ),
+        ])
+        .map(|(k, v)| {
+            (
+                HeaderName::from_str(k).unwrap(),
+                HeaderValue::from_str(v).unwrap(),
+            )
+        })
+        .collect::<HeaderMap<_>>();
+
+        Self {
+            cookies,
+            incoming_cookies_url: None,
+            default_headers,
+            redirect_policy: None,
+        }
+    }
+
+    pub fn forward_incoming_cookies(mut self, from_url: Url) -> Self {
+        self.incoming_cookies_url = Some(from_url);
+        self
+    }
+
+    pub fn default_header<K>(mut self, key: K, value: &str) -> Self
+    where
+        K: IntoHeaderName,
+    {
+        self.default_headers.insert(key, value.parse().unwrap());
+        self
+    }
+
+    pub fn redirect_policy(mut self, policy: Policy) -> Self {
+        self.redirect_policy = Some(policy);
+        self
+    }
+
+    pub fn build(self) -> Client<'r> {
+        let mut client_builder = ReqwestClient::builder()
+            .default_headers(self.default_headers);
+
+        if let Some(url) = self.incoming_cookies_url {
+            let client_cookies = Arc::new(Jar::default());
+
+            let cookie_values = self.cookies
+                .iter()
+                .map(|c| HeaderValue::from_str(&c.to_string()).unwrap())
+                .collect::<Vec<_>>();
+            client_cookies.set_cookies(&mut cookie_values.iter(), &url);
+
+            client_builder = client_builder.cookie_provider(client_cookies);
+        }
+
+        if let Some(policy) = self.redirect_policy {
+            client_builder = client_builder.redirect(policy)
+        }
+
+        Client {
+            outgoing_cookies: self.cookies,
+            client: client_builder.build().unwrap(),
         }
     }
 }
@@ -76,48 +161,11 @@ impl<'r> FromRequest<'r> for Client<'r> {
     async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
         let incoming_cookies = try_outcome!(request.guard::<&CookieJar<'_>>().await);
 
-        let client_cookies = Arc::new(Jar::default());
+        let client = ClientBuilder::new(incoming_cookies)
+            .forward_incoming_cookies(Url::parse("www.pickleballtournaments.com").unwrap())
+            .default_header("Host", "www.pickleballtournaments.com")
+            .build();
 
-        let url = Url::parse("https://www.pickleballtournaments.com").unwrap();
-        let cookie_values = incoming_cookies
-            .iter()
-            .map(|c| HeaderValue::from_str(&c.to_string()).unwrap())
-            .collect::<Vec<_>>();
-        client_cookies.set_cookies(&mut cookie_values.iter(), &url);
-
-        let default_headers = std::array::IntoIter::new([
-            ("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"),
-            ("Accept-Language", "en-US,en;q=0.5"),
-            ("Connection", "keep-alive"),
-            ("Host", "www.pickleballtournaments.com"),
-            ("Sec-Fetch-Dest", "document"),
-            ("Sec-Fetch-Mode", "navigate"),
-            ("Sec-Fetch-Site", "none"),
-            ("Sec-Fetch-User", "?1"),
-            ("Upgrade-Insecure-Requests", "1"),
-            (
-                "User-Agent",
-                "Mozilla/5.0 (X11; Linux x86_64; rv:93.0) Gecko/20100101 Firefox/93.0",
-            ),
-        ])
-        .map(|(k, v)| {
-            (
-                HeaderName::from_str(k).unwrap(),
-                HeaderValue::from_str(v).unwrap(),
-            )
-        })
-        .collect::<HeaderMap<_>>();
-
-        let client = ReqwestClient::builder()
-            .default_headers(default_headers.clone())
-            .cookie_provider(client_cookies)
-            //.redirect(Policy::none())
-            .build()
-            .unwrap();
-
-        Outcome::Success(Client {
-            outgoing_cookies: incoming_cookies,
-            client,
-        })
+        Outcome::Success(client)
     }
 }
