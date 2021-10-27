@@ -155,6 +155,7 @@ class Captcha {
         m("a", { href: "https://www.pickleballtournaments.com" }, "PickleballTournaments.com"),
         " pretty regularly. Please fill out this captcha to continue:",
       ]),
+      m("script", captcha.script),
       m("div.captcha-body", [
         m("script", { src: "https://hcaptcha.com/1/api.js" }),
         m("div.h-captcha", { "data-sitekey": captcha.sitekey }),

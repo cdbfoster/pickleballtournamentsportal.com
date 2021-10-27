@@ -106,7 +106,7 @@ async fn map_response(response: Result<Response, Error>, error: &str) -> ScrapeR
                 let html = Html::parse_document(&html_raw);
 
                 let script_selector = Selector::parse("script").unwrap();
-                let script = html.select(&script_selector).next().unwrap().html();
+                let script = html.select(&script_selector).next().unwrap().inner_html();
 
                 let captcha_selector = Selector::parse(".h-captcha").unwrap();
                 let captcha_html = html.select(&captcha_selector).next().unwrap().html();
