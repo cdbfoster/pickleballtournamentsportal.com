@@ -71,7 +71,11 @@ pub enum TournamentListPayload {
 #[serde(crate = "rocket::serde")]
 #[serde(rename_all = "camelCase")]
 pub enum CaptchaPayload {
-    Captcha { url: String, sitekey: String },
+    Captcha {
+        url: String,
+        script: String,
+        sitekey: String,
+    },
 }
 
 #[derive(Clone, Debug, Serialize)]
@@ -101,6 +105,9 @@ async fn map_response(response: Result<Response, Error>, error: &str) -> ScrapeR
                 let html_raw = r.text().await.unwrap();
                 let html = Html::parse_document(&html_raw);
 
+                let script_selector = Selector::parse("script").unwrap();
+                let script = html.select(&script_selector).next().unwrap().html();
+
                 let captcha_selector = Selector::parse(".h-captcha").unwrap();
                 let captcha_html = html.select(&captcha_selector).next().unwrap().html();
 
@@ -109,6 +116,7 @@ async fn map_response(response: Result<Response, Error>, error: &str) -> ScrapeR
 
                 Err(ScrapeError::Captcha(Json(CaptchaPayload::Captcha {
                     url,
+                    script,
                     sitekey,
                 })))
             } else {
