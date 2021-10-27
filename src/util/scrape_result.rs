@@ -9,9 +9,7 @@ pub type ScrapeResult<T> = Result<T, ScrapeError>;
 #[serde(crate = "rocket::serde")]
 #[serde(rename_all = "camelCase")]
 pub enum CaptchaPayload {
-    Captcha {
-        url: String,
-    },
+    Captcha { url: String },
 }
 
 #[derive(Clone, Debug, Serialize)]
@@ -29,14 +27,15 @@ pub enum ScrapeError {
     Error(Json<ErrorPayload>),
 }
 
-pub async fn scrape_result(response: Result<Response, Error>, error: &str) -> ScrapeResult<Response> {
+pub async fn scrape_result(
+    response: Result<Response, Error>,
+    error: &str,
+) -> ScrapeResult<Response> {
     match response {
         Ok(r) => {
             let url = r.url().to_string();
             if url.contains("validate.perfdrive.com") {
-                Err(ScrapeError::Captcha(Json(CaptchaPayload::Captcha {
-                    url,
-                })))
+                Err(ScrapeError::Captcha(Json(CaptchaPayload::Captcha { url })))
             } else {
                 Ok(r)
             }

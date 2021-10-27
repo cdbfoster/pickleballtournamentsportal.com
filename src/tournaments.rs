@@ -14,7 +14,7 @@ use scraper::{ElementRef, Html, Selector};
 
 use crate::client::Client;
 use crate::util::cache::Cache;
-use crate::util::scrape_result::{ScrapeResult, scrape_result};
+use crate::util::scrape_result::{scrape_result, ScrapeResult};
 
 #[derive(Clone, Debug, Serialize)]
 #[serde(crate = "rocket::serde")]
