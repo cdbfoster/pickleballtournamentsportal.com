@@ -7,7 +7,7 @@ use rocket::fs::{relative, FileServer};
 use rocket_dyn_templates::Template;
 
 use self::tournaments::{fetch_tournaments, tournament_search, TournamentListing};
-use self::util::Cache;
+use self::util::cache::Cache;
 
 mod client;
 mod tournaments;

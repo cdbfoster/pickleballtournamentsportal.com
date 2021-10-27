@@ -6,8 +6,6 @@ use std::time::Duration;
 use chrono::prelude::*;
 use once_cell::sync::Lazy;
 use regex::Regex;
-use reqwest::{Error, Response};
-use rocket::response::Responder;
 use rocket::serde::json::Json;
 use rocket::serde::Serialize;
 use rocket::State;
@@ -15,7 +13,8 @@ use rocket_dyn_templates::Template;
 use scraper::{ElementRef, Html, Selector};
 
 use crate::client::Client;
-use crate::util::Cache;
+use crate::util::cache::Cache;
+use crate::util::scrape_result::{ScrapeResult, scrape_result};
 
 #[derive(Clone, Debug, Serialize)]
 #[serde(crate = "rocket::serde")]
@@ -67,54 +66,6 @@ pub enum TournamentListPayload {
     Tournaments(Vec<TournamentListing>),
 }
 
-#[derive(Clone, Debug, Serialize)]
-#[serde(crate = "rocket::serde")]
-#[serde(rename_all = "camelCase")]
-pub enum CaptchaPayload {
-    Captcha {
-        url: String,
-    },
-}
-
-#[derive(Clone, Debug, Serialize)]
-#[serde(crate = "rocket::serde")]
-#[serde(rename_all = "camelCase")]
-pub enum ErrorPayload {
-    Error { reason: String },
-}
-
-#[derive(Debug, Responder)]
-pub enum ScrapeError {
-    #[response(status = 200, content_type = "json")]
-    Captcha(Json<CaptchaPayload>),
-    #[response(status = 500)]
-    Error(Json<ErrorPayload>),
-}
-
-pub type ScrapeResult<T> = Result<T, ScrapeError>;
-
-async fn map_response(response: Result<Response, Error>, error: &str) -> ScrapeResult<Response> {
-    match response {
-        Ok(r) => {
-            let url = r.url().to_string();
-            if url.contains("validate.perfdrive.com") {
-                Err(ScrapeError::Captcha(Json(CaptchaPayload::Captcha {
-                    url,
-                })))
-            } else {
-                Ok(r)
-            }
-        }
-        Err(e) => Err(ScrapeError::Error(Json(ErrorPayload::Error {
-            reason: if let Some(status) = e.status() {
-                format!("{}:\n  status: {}\n  error: {}", error, status.as_u16(), e)
-            } else {
-                format!("{}:\n  error: {}", error, e)
-            },
-        }))),
-    }
-}
-
 #[get("/tournaments/fetch")]
 pub async fn fetch_tournaments(
     client: Client<'_>,
@@ -122,7 +73,7 @@ pub async fn fetch_tournaments(
 ) -> ScrapeResult<Json<TournamentListPayload>> {
     let tournament_listings = tournament_listings_cache
         .retrieve_or_update(Duration::from_secs(60 * 60), || async {
-            let response = map_response(
+            let response = scrape_result(
                 client
                     .get("https://www.pickleballtournaments.com/pbt_tlisting.pl?when=F")
                     .send()
@@ -133,7 +84,7 @@ pub async fn fetch_tournaments(
 
             let future_raw_html = response.text().await.unwrap();
 
-            let response = map_response(
+            let response = scrape_result(
                 client
                     .get("https://www.pickleballtournaments.com/pbt_tlisting.pl?when=P")
                     .header(
