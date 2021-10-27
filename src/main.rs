@@ -7,7 +7,7 @@ use regex::Regex;
 use reqwest::redirect::Policy;
 use reqwest::StatusCode;
 use rocket::fs::{relative, FileServer};
-use rocket::http::{CookieJar, Status};
+use rocket::http::Status;
 use rocket::serde::json::Json;
 use rocket::serde::{Deserialize, Serialize};
 use rocket_dyn_templates::Template;
@@ -43,15 +43,16 @@ struct CaptchaForm {
 }
 
 #[post("/uncaptcha", data = "<request>")]
-async fn uncaptcha(request: Json<UncaptchaRequest>, cookies: &CookieJar<'_>) -> (Status, String) {
-    let client = ClientBuilder::new(cookies)
+async fn uncaptcha(request: Json<UncaptchaRequest>) -> (Status, String) {
+    let client = ClientBuilder::new()
         .default_header("Host", "validate.perfdrive.com")
         .default_header("Origin", "https://validate.perfdrive.com")
         .default_header("Cache-Control", "no-cache")
         .redirect_policy(Policy::none())
         .build();
 
-    let response = client.post(&request.url)
+    let response = client
+        .post(&request.url)
         .header("Referer", &request.url)
         .header("Sec-Fetch-Site", "same-origin")
         .form(&CaptchaForm {
@@ -64,20 +65,34 @@ async fn uncaptcha(request: Json<UncaptchaRequest>, cookies: &CookieJar<'_>) -> 
     if let Ok(response) = response {
         if response.status() == StatusCode::FOUND {
             let location_pattern = Regex::new(r"pickleballtournaments\.com").unwrap();
-            let location_header = response.headers().get("location").unwrap().to_str().unwrap();
+            let location_header = response
+                .headers()
+                .get("location")
+                .unwrap()
+                .to_str()
+                .unwrap();
 
             if location_pattern.is_match(location_header) {
                 (Status::Ok, "Unblocked".to_owned())
             } else {
-                (Status::Forbidden, format!("Unexpected redirect: {}", location_header))
+                (
+                    Status::Forbidden,
+                    format!("Unexpected redirect: {}", location_header),
+                )
             }
         } else {
             let status = response.status().as_u16();
             let body = response.text().await.unwrap();
-            (Status::Forbidden, format!("perfdrive.com responded with: {}\nBody: {}", status, body))
+            (
+                Status::Forbidden,
+                format!("perfdrive.com responded with: {}\nBody: {}", status, body),
+            )
         }
     } else {
-        (Status::InternalServerError, format!("Could not send request: {}", response.unwrap_err()))
+        (
+            Status::InternalServerError,
+            format!("Could not send request: {}", response.unwrap_err()),
+        )
     }
 }
 

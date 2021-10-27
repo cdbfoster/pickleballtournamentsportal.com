@@ -17,7 +17,7 @@ use rocket::request::{FromRequest, Outcome, Request};
 use rocket::serde::Serialize;
 
 pub struct Client<'r> {
-    outgoing_cookies: &'r CookieJar<'r>,
+    outgoing_cookies: Option<&'r CookieJar<'r>>,
     client: ReqwestClient,
 }
 
@@ -48,15 +48,14 @@ impl<'r> Client<'r> {
 }
 
 pub struct ClientBuilder<'r> {
-    cookies: &'r CookieJar<'r>,
-
+    cookies: Option<&'r CookieJar<'r>>,
     incoming_cookies_url: Option<Url>,
     default_headers: HeaderMap,
     redirect_policy: Option<Policy>,
 }
 
 impl<'r> ClientBuilder<'r> {
-    pub fn new(cookies: &'r CookieJar<'r>) -> Self {
+    pub fn new() -> Self {
         let default_headers = std::array::IntoIter::new([
             ("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"),
             ("Accept-Language", "en-US,en;q=0.5"),
@@ -80,14 +79,15 @@ impl<'r> ClientBuilder<'r> {
         .collect::<HeaderMap<_>>();
 
         Self {
-            cookies,
+            cookies: None,
             incoming_cookies_url: None,
             default_headers,
             redirect_policy: None,
         }
     }
 
-    pub fn forward_incoming_cookies(mut self, from_url: Url) -> Self {
+    pub fn forward_cookies(mut self, cookies: &'r CookieJar<'r>, from_url: Url) -> Self {
+        self.cookies = Some(cookies);
         self.incoming_cookies_url = Some(from_url);
         self
     }
@@ -106,20 +106,20 @@ impl<'r> ClientBuilder<'r> {
     }
 
     pub fn build(self) -> Client<'r> {
-        let mut client_builder = ReqwestClient::builder()
-            .default_headers(self.default_headers);
+        let mut client_builder = ReqwestClient::builder().default_headers(self.default_headers);
 
-        if let Some(url) = self.incoming_cookies_url {
-            let client_cookies = Arc::new(Jar::default());
-
-            let cookie_values = self.cookies
+        let client_cookies = Arc::new(Jar::default());
+        if let Some(cookies) = self.cookies {
+            let cookie_values = cookies
                 .iter()
                 .map(|c| HeaderValue::from_str(&c.to_string()).unwrap())
                 .collect::<Vec<_>>();
-            client_cookies.set_cookies(&mut cookie_values.iter(), &url);
-
-            client_builder = client_builder.cookie_provider(client_cookies);
+            client_cookies.set_cookies(
+                &mut cookie_values.iter(),
+                self.incoming_cookies_url.as_ref().unwrap(),
+            );
         }
+        client_builder = client_builder.cookie_provider(client_cookies);
 
         if let Some(policy) = self.redirect_policy {
             client_builder = client_builder.redirect(policy)
@@ -165,11 +165,12 @@ impl<'r> RequestBuilder<'r> {
         let response = self.request.send().await;
 
         if let Ok(ref response) = response {
-            // Copy any new cookies into the outgoing jar
-            for header in response.headers().get_all("set-cookie").iter() {
-                self.client
-                    .outgoing_cookies
-                    .add(Cookie::parse(String::from(header.to_str().unwrap())).unwrap());
+            if let Some(ref outgoing_cookies) = self.client.outgoing_cookies {
+                // Copy any new cookies into the outgoing jar
+                for header in response.headers().get_all("set-cookie").iter() {
+                    outgoing_cookies
+                        .add(Cookie::parse(String::from(header.to_str().unwrap())).unwrap());
+                }
             }
         }
 
@@ -184,8 +185,11 @@ impl<'r> FromRequest<'r> for Client<'r> {
     async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
         let incoming_cookies = try_outcome!(request.guard::<&CookieJar<'_>>().await);
 
-        let client = ClientBuilder::new(incoming_cookies)
-            .forward_incoming_cookies(Url::parse("https://www.pickleballtournaments.com").unwrap())
+        let client = ClientBuilder::new()
+            .forward_cookies(
+                incoming_cookies,
+                Url::parse("https://www.pickleballtournaments.com").unwrap(),
+            )
             .default_header("Host", "www.pickleballtournaments.com")
             .build();
 
