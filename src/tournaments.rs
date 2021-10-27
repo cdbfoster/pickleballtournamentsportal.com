@@ -73,8 +73,6 @@ pub enum TournamentListPayload {
 pub enum CaptchaPayload {
     Captcha {
         url: String,
-        script: String,
-        sitekey: String,
     },
 }
 
@@ -98,26 +96,10 @@ pub type ScrapeResult<T> = Result<T, ScrapeError>;
 async fn map_response(response: Result<Response, Error>, error: &str) -> ScrapeResult<Response> {
     match response {
         Ok(r) => {
-            let captcha_url = Regex::new(r"validate\.perfdrive\.com").unwrap();
-            if captcha_url.is_match(r.url().as_str()) {
-                let url = r.url().to_string();
-
-                let html_raw = r.text().await.unwrap();
-                let html = Html::parse_document(&html_raw);
-
-                let script_selector = Selector::parse("script").unwrap();
-                let script = html.select(&script_selector).next().unwrap().inner_html();
-
-                let captcha_selector = Selector::parse(".h-captcha").unwrap();
-                let captcha_html = html.select(&captcha_selector).next().unwrap().html();
-
-                let sitekey_pattern = Regex::new(r#"sitekey="([^"]+)""#).unwrap();
-                let sitekey = sitekey_pattern.captures(&captcha_html).unwrap()[1].to_owned();
-
+            let url = r.url().to_string();
+            if url.contains("validate.perfdrive.com") {
                 Err(ScrapeError::Captcha(Json(CaptchaPayload::Captcha {
                     url,
-                    script,
-                    sitekey,
                 })))
             } else {
                 Ok(r)

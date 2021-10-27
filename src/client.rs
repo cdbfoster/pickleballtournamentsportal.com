@@ -34,6 +34,7 @@ impl<'r> Client<'r> {
         }
     }
 
+    #[allow(dead_code)]
     pub fn post<U>(&self, url: U) -> RequestBuilder
     where
         U: IntoUrl,
@@ -100,6 +101,7 @@ impl<'r> ClientBuilder<'r> {
         self
     }
 
+    #[allow(dead_code)]
     pub fn redirect_policy(mut self, policy: Policy) -> Self {
         self.redirect_policy = Some(policy);
         self
@@ -151,6 +153,7 @@ impl<'r> RequestBuilder<'r> {
         }
     }
 
+    #[allow(dead_code)]
     pub fn form<T>(self, form: &T) -> Self
     where
         T: Serialize + ?Sized,

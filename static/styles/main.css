@@ -25,7 +25,7 @@ body {
 .captcha {
   display: grid;
   grid-gap: 2em;
-  grid-template-rows: 1fr min-content 2fr;
+  grid-template-rows: 1fr min-content min-content 2fr;
   justify-items: center;
 }
 
@@ -46,21 +46,7 @@ body {
   max-width: 28em;
 }
 
-.captcha > .loading-indicator, .captcha > .waiting {
-  font-size: 2em;
-}
-
-.captcha > .waiting {
-  text-align: center;
-}
-
-.captcha-body {
-  display: flex;
-  flex-flow: column nowrap;
-  gap: 0.5em;
-}
-
-.captcha-body > button {
+.captcha .captcha-button {
   background-color: #F0F0FF;
   border: 3px solid #C5D4FF;
   border-radius: 5px;
@@ -69,17 +55,13 @@ body {
   font-family: "Nunito", sans-serif;
   font-size: 1.2em;
   padding: 0.5em;
+  text-align: center;
+  width: 12em;
 }
 
-.captcha-body > button.disabled {
-  background-color: white;
-  border: 3px solid #EEEEEE;
-  color: #777777;
-  cursor: initial;
-}
-
-.captcha-body > button:not(.disabled):hover {
+.captcha .captcha-button:hover {
   background-color: #DDDDFF;
+  text-decoration: none;
 }
 
 h1, h2 {
@@ -423,10 +405,6 @@ main {
 @media (max-width: 825px) {
   header h1 {
     font-size: 2em;
-  }
-
-  .captcha > .waiting {
-    font-size: 1.75em;
   }
 
   #tournaments .tournament-listing {
