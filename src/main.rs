@@ -5,9 +5,9 @@ use std::collections::HashMap;
 
 use regex::Regex;
 use reqwest::redirect::Policy;
-use reqwest::StatusCode;
+use reqwest::{StatusCode, Url};
 use rocket::fs::{relative, FileServer};
-use rocket::http::Status;
+use rocket::http::{CookieJar, Status};
 use rocket::serde::json::Json;
 use rocket::serde::{Deserialize, Serialize};
 use rocket_dyn_templates::Template;
@@ -43,8 +43,9 @@ struct CaptchaForm {
 }
 
 #[post("/uncaptcha", data = "<request>")]
-async fn uncaptcha(request: Json<UncaptchaRequest>) -> (Status, String) {
+async fn uncaptcha(request: Json<UncaptchaRequest>, cookies: &CookieJar<'_>) -> (Status, String) {
     let client = ClientBuilder::new()
+        .forward_cookies(cookies, Url::parse("https://validate.perfdrive.com").unwrap())
         .default_header("Host", "validate.perfdrive.com")
         .default_header("Origin", "https://validate.perfdrive.com")
         .default_header("Cache-Control", "no-cache")
