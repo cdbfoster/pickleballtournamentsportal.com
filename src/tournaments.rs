@@ -111,8 +111,7 @@ pub async fn fetch_tournaments(
 
             Ok(tournament_listings)
         })
-        .await?
-        .unwrap();
+        .await?;
 
     Ok(Json(TournamentListPayload::Tournaments(
         tournament_listings.clone(),

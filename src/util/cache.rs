@@ -1,6 +1,7 @@
 use std::future::Future;
-use std::sync::{LockResult, Mutex, RwLock, RwLockReadGuard};
 use std::time::{Duration, Instant};
+
+use async_std::sync::{Mutex, RwLock, RwLockReadGuard};
 
 /// Retrieves the stored value unless the storage interval has expired in which case the value is updated
 pub struct Cache<T> {
@@ -19,31 +20,26 @@ where
         }
     }
 
-    // Not perfect; it's possible two threads will want to update at the same time and clobber each other.  Oh well.
-    // We can't hold the timestamp mutex and remain async during the call to update at the same time.
     pub async fn retrieve_or_update<F, E>(
         &self,
         interval: Duration,
         update: impl Fn() -> F,
-    ) -> Result<LockResult<RwLockReadGuard<'_, T>>, E>
+    ) -> Result<RwLockReadGuard<'_, T>, E>
     where
         F: Future<Output = Result<T, E>>,
     {
-        let should_update = {
-            let timestamp = self.timestamp.lock().unwrap();
-            timestamp.is_none() || timestamp.unwrap().elapsed() >= interval
-        };
+        let mut timestamp = self.timestamp.lock().await;
 
-        if should_update {
+        if timestamp.is_none() || timestamp.unwrap().elapsed() >= interval {
             match update().await {
                 Ok(new_value) => {
-                    *self.value.write().unwrap() = new_value;
-                    *self.timestamp.lock().unwrap() = Some(Instant::now());
+                    *self.value.write().await = new_value;
+                    *timestamp = Some(Instant::now());
                 }
                 Err(error) => return Err(error),
             }
         }
 
-        Ok(self.value.read())
+        Ok(self.value.read().await)
     }
 }
