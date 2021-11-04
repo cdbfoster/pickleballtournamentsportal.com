@@ -7,7 +7,7 @@ use rocket::fs::{relative, FileServer};
 use rocket_dyn_templates::Template;
 
 use self::tournaments::{fetch_tournaments, tournament_search, TournamentListing};
-use self::util::cache::Cache;
+use self::util::cache::{Cache, PageCache};
 
 mod client;
 mod tournaments;
@@ -27,4 +27,5 @@ fn rocket() -> _ {
         .mount("/", FileServer::from(relative!("static")))
         .attach(Template::fairing())
         .manage(Cache::<Vec<TournamentListing>>::new())
+        .manage(PageCache::new())
 }

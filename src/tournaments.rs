@@ -13,8 +13,10 @@ use rocket_dyn_templates::Template;
 use scraper::{ElementRef, Html, Selector};
 
 use crate::client::Client;
-use crate::util::cache::Cache;
+use crate::util::cache::{Cache, PageCache};
 use crate::util::scrape_result::{scrape_result, ScrapeResult};
+
+const TOURNAMENT_LIST_REFRESH: u64 = 60 * 60;
 
 #[derive(Clone, Debug, Serialize)]
 #[serde(crate = "rocket::serde")]
@@ -70,35 +72,41 @@ pub enum TournamentListPayload {
 pub async fn fetch_tournaments(
     client: Client<'_>,
     tournament_listings_cache: &State<Cache<Vec<TournamentListing>>>,
+    page_cache: &State<PageCache>,
 ) -> ScrapeResult<Json<TournamentListPayload>> {
     let tournament_listings = tournament_listings_cache
-        .retrieve_or_update(Duration::from_secs(60 * 60), || async {
-            let response = scrape_result(
-                client
-                    .get("https://www.pickleballtournaments.com/pbt_tlisting.pl?when=F")
-                    .send()
-                    .await,
-                "could not load future tournaments",
-            )
-            .await?;
+        .retrieve_or_update(Duration::from_secs(TOURNAMENT_LIST_REFRESH), || async {
+            let future_tournaments = page_cache
+                .get("https://www.pickleballtournaments.com/pbt_tlisting.pl?when=F")
+                .await;
+            let future_raw_html = future_tournaments
+                .retrieve_or_update(
+                    Duration::from_secs(TOURNAMENT_LIST_REFRESH),
+                    |url| async { client.get(url).send().await },
+                    "could not load future tournaments",
+                )
+                .await?;
 
-            let future_raw_html = response.text().await.unwrap();
-
-            let response = scrape_result(
-                client
-                    .get("https://www.pickleballtournaments.com/pbt_tlisting.pl?when=P")
-                    .header(
-                        "Referer",
-                        "https://www.pickleballtournaments.com/pbt_tlisting.pl?when=F",
-                    )
-                    .header("Sec-Fetch-Site", "same-origin")
-                    .send()
-                    .await,
-                "could not load past tournaments",
-            )
-            .await?;
-
-            let past_raw_html = response.text().await.unwrap();
+            let past_tournaments = page_cache
+                .get("https://www.pickleballtournaments.com/pbt_tlisting.pl?when=P")
+                .await;
+            let past_raw_html = past_tournaments
+                .retrieve_or_update(
+                    Duration::from_secs(TOURNAMENT_LIST_REFRESH),
+                    |url| async {
+                        client
+                            .get(url)
+                            .header(
+                                "Referer",
+                                "https://www.pickleballtournaments.com/pbt_tlisting.pl?when=F",
+                            )
+                            .header("Sec-Fetch-Site", "same-origin")
+                            .send()
+                            .await
+                    },
+                    "could not load past tournaments",
+                )
+                .await?;
 
             let future_document = Html::parse_document(&future_raw_html);
             let past_document = Html::parse_document(&past_raw_html);

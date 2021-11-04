@@ -27,10 +27,7 @@ pub enum ScrapeError {
     Error(Json<ErrorPayload>),
 }
 
-pub async fn scrape_result(
-    response: Result<Response, Error>,
-    error: &str,
-) -> ScrapeResult<Response> {
+pub fn scrape_result(response: Result<Response, Error>, error: &str) -> ScrapeResult<Response> {
     match response {
         Ok(r) => {
             let url = r.url().to_string();
