@@ -1,22 +1,16 @@
-//! Handles the scraping/parsing/caching of the tournament list from pickleballtournaments.com
-
-use std::collections::HashMap;
 use std::time::Duration;
 
+use async_std::sync::RwLockReadGuard;
 use chrono::prelude::*;
 use once_cell::sync::Lazy;
 use regex::Regex;
-use rocket::serde::json::Json;
 use rocket::serde::Serialize;
-use rocket::State;
-use rocket_dyn_templates::Template;
 use scraper::{ElementRef, Html, Selector};
 
 use crate::client::Client;
-use crate::util::cache::{Cache, PageCache};
-use crate::util::scrape_result::{scrape_result, ScrapeResult};
+use crate::scrape::{ScrapeCache, ScrapeResult, TOURNAMENT_LIST_REFRESH};
 
-const TOURNAMENT_LIST_REFRESH: u64 = 60 * 60;
+pub type TournamentList = Vec<TournamentListing>;
 
 #[derive(Clone, Debug, Serialize)]
 #[serde(crate = "rocket::serde")]
@@ -53,46 +47,31 @@ pub enum RegistrationStatus {
     },
 }
 
-#[get("/tournaments")]
-pub fn tournament_search() -> Template {
-    let context: HashMap<String, String> = HashMap::new();
-    Template::render("tournaments", &context)
-}
+pub type TournamentListGuard<'a> = RwLockReadGuard<'a, TournamentList>;
 
-// The following are single-variant enums so they serialize nicely as {"<tournaments|captcha|error>": value}.
-
-#[derive(Clone, Debug, Serialize)]
-#[serde(crate = "rocket::serde")]
-#[serde(rename_all = "camelCase")]
-pub enum TournamentListPayload {
-    Tournaments(Vec<TournamentListing>),
-}
-
-#[get("/tournaments/fetch")]
-pub async fn fetch_tournaments(
-    client: Client<'_>,
-    tournament_listings_cache: &State<Cache<Vec<TournamentListing>>>,
-    page_cache: &State<PageCache>,
-) -> ScrapeResult<Json<TournamentListPayload>> {
-    let tournament_listings = tournament_listings_cache
+pub async fn tournament_list<'a>(
+    client: &'a Client<'a>,
+    cache: &'a ScrapeCache,
+) -> ScrapeResult<TournamentListGuard<'a>> {
+    cache
+        .tournament_list
         .retrieve_or_update(Duration::from_secs(TOURNAMENT_LIST_REFRESH), || async {
-            let future_tournaments = page_cache
-                .get("https://www.pickleballtournaments.com/pbt_tlisting.pl?when=F")
-                .await;
-            let future_raw_html = future_tournaments
+            let future_raw_html = cache
+                .pages
                 .retrieve_or_update(
                     Duration::from_secs(TOURNAMENT_LIST_REFRESH),
+                    "https://www.pickleballtournaments.com/pbt_tlisting.pl?when=F",
                     |url| async { client.get(url).send().await },
                     "could not load future tournaments",
                 )
-                .await?;
+                .await?
+                .clone();
 
-            let past_tournaments = page_cache
-                .get("https://www.pickleballtournaments.com/pbt_tlisting.pl?when=P")
-                .await;
-            let past_raw_html = past_tournaments
+            let past_raw_html = cache
+                .pages
                 .retrieve_or_update(
                     Duration::from_secs(TOURNAMENT_LIST_REFRESH),
+                    "https://www.pickleballtournaments.com/pbt_tlisting.pl?when=P",
                     |url| async {
                         client
                             .get(url)
@@ -106,7 +85,8 @@ pub async fn fetch_tournaments(
                     },
                     "could not load past tournaments",
                 )
-                .await?;
+                .await?
+                .clone();
 
             let future_document = Html::parse_document(&future_raw_html);
             let past_document = Html::parse_document(&past_raw_html);
@@ -119,11 +99,7 @@ pub async fn fetch_tournaments(
 
             Ok(tournament_listings)
         })
-        .await?;
-
-    Ok(Json(TournamentListPayload::Tournaments(
-        tournament_listings.clone(),
-    )))
+        .await
 }
 
 struct Selectors {
