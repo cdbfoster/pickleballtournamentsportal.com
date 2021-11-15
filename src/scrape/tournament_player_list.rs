@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use once_cell::sync::Lazy;
 use regex::Regex;
 use rocket::serde::Serialize;
 use scraper::{Html, Selector};
@@ -63,31 +64,23 @@ pub async fn tournament_player_list<'a>(
                             .await?
                             .clone();
 
+
                         let tournament_page_html = Html::parse_document(&tournament_page_raw_html);
 
-                        let player_selector =
-                            Selector::parse("#menuPlayerList .playerlist-wrap table tr").unwrap();
-                        let player_name_selector = Selector::parse(".col-player > a").unwrap();
-                        let player_from_selector = Selector::parse(".col-from").unwrap();
-
-                        let player_id_pattern = Regex::new(r"&amp;id=(\d+)").unwrap();
-                        let player_name_pattern =
-                            Regex::new(r"<span>([^<]+)</span>, ([^(<]+)(?:\(([^)]+)\))?").unwrap();
-
                         Ok(tournament_page_html
-                            .select(&player_selector)
+                            .select(&SELECTORS.player)
                             .map(|player_row| {
                                 let name_element =
-                                    player_row.select(&player_name_selector).next().unwrap();
+                                    player_row.select(&SELECTORS.player_name).next().unwrap();
                                 let name_html = name_element.html();
-                                let id = player_id_pattern.captures(&name_html).unwrap()[1]
+                                let id = PATTERNS.player_id.captures(&name_html).unwrap()[1]
                                     .parse()
                                     .unwrap();
                                 let name_matches =
-                                    player_name_pattern.captures(&name_html).unwrap();
+                                    PATTERNS.player_name.captures(&name_html).unwrap();
 
                                 let from_element =
-                                    player_row.select(&player_from_selector).next().unwrap();
+                                    player_row.select(&SELECTORS.player_from).next().unwrap();
 
                                 Player {
                                     id,
@@ -104,3 +97,25 @@ pub async fn tournament_player_list<'a>(
         })
         .await
 }
+
+struct Selectors {
+    player: Selector,
+    player_name: Selector,
+    player_from: Selector,
+}
+
+static SELECTORS: Lazy<Selectors> = Lazy::new(|| Selectors {
+    player: Selector::parse("#menuPlayerList .playerlist-wrap table tr").unwrap(),
+    player_name: Selector::parse(".col-player > a").unwrap(),
+    player_from: Selector::parse(".col-from").unwrap(),
+});
+
+struct Patterns {
+    player_id: Regex,
+    player_name: Regex,
+}
+
+static PATTERNS: Lazy<Patterns> = Lazy::new(|| Patterns {
+    player_id: Regex::new(r"&amp;id=(\d+)").unwrap(),
+    player_name: Regex::new(r"<span>([^<]+)</span>, ([^(<]+)(?:\(([^)]+)\))?").unwrap(),
+});
