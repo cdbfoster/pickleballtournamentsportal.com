@@ -40,6 +40,15 @@ pub enum EventContent {
     BracketUrl(String),
 }
 
+impl EventContent {
+    pub fn url(&self) -> &str {
+        match self {
+            EventContent::ListUrl(url) => &url,
+            EventContent::BracketUrl(url) => &url,
+        }
+    }
+}
+
 pub type EventGroupListGuard<'a> = GuardStack<
     'a,
     (
