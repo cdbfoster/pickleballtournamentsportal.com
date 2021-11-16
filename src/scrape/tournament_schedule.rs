@@ -109,15 +109,20 @@ pub async fn tournament_schedule<'a>(
                                             date: date.clone(),
                                             time: time.clone(),
                                             venue: venue.clone(),
+                                            link: event_groups
+                                                .iter()
+                                                .flat_map(|g| g.events.iter())
+                                                .find(|e| e.name == name)
+                                                .is_some()
+                                                || url
+                                                    .and_then(|url| {
+                                                        event_groups
+                                                            .iter()
+                                                            .flat_map(|g| g.events.iter())
+                                                            .find(|e| e.content.url() == url)
+                                                    })
+                                                    .is_some(),
                                             event: name,
-                                            link: url
-                                                .and_then(|url| {
-                                                    event_groups
-                                                        .iter()
-                                                        .flat_map(|g| g.events.iter())
-                                                        .find(|e| e.content.url() == url)
-                                                })
-                                                .is_some(),
                                         })
                                     });
                             }
