@@ -26,7 +26,7 @@ pub struct ScrapeCache {
     pub tournament_schedule: CacheMap<usize, Schedule>,
 }
 
-const TOURNAMENT_LIST_REFRESH: u64 = 60 * 60;
+const TOURNAMENT_LIST_REFRESH: u64 = 3 * 60 * 60;
 const TOURNAMENT_EVENT_BRACKET_LIST_REFRESH: u64 = 2 * 60 * 60;
 const TOURNAMENT_EVENT_BRACKET_PAGE_REFRESH: u64 = 15 * 60;
 const TOURNAMENT_EVENT_PLAYER_LIST_REFRESH: u64 = 3 * 60 * 60;
