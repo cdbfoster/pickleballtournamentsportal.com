@@ -6,7 +6,7 @@ use self::tournament_list::TournamentList;
 use self::tournament_player_list::PlayerList;
 use self::tournament_schedule::Schedule;
 
-pub use self::result::{scrape_result, ScrapeResult};
+pub use self::result::{scrape_result, ScrapeError, ScrapeResult};
 
 pub mod tournament_event_group_list;
 pub mod tournament_info;

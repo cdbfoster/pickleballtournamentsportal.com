@@ -27,6 +27,14 @@ pub enum ScrapeError {
     Error(Json<ErrorPayload>),
 }
 
+impl ScrapeError {
+    pub fn from_str(reason: &str) -> Self {
+        ScrapeError::Error(Json(ErrorPayload::Error {
+            reason: reason.to_owned(),
+        }))
+    }
+}
+
 pub fn scrape_result(response: Result<Response, Error>, error: &str) -> ScrapeResult<Response> {
     match response {
         Ok(r) => {

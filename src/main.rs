@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use rocket::fs::{relative, FileServer};
 use rocket_dyn_templates::Template;
 
-use self::endpoints::tournaments;
+use self::endpoints::{tournament, tournaments};
 use self::scrape::ScrapeCache;
 
 mod client;
@@ -25,6 +25,7 @@ fn rocket() -> _ {
     rocket::build()
         .mount("/", routes![landing_page])
         .mount("/", routes![tournaments::fetch, tournaments::search])
+        .mount("/", routes![tournament::data, tournament::page])
         .mount("/", FileServer::from(relative!("static")))
         .attach(Template::fairing())
         .manage(ScrapeCache::default())

@@ -1,0 +1,13 @@
+{% extends "base" %}
+
+{% block head %}
+{{ super() }}
+    <script>
+      var tournamentId = {{ id }};
+    </script>
+{%- endblock head %}
+
+{% block body %}
+    <main id="tournament"></main>
+    <script src="/scripts/tournament.js"></script>
+{%- endblock body %}

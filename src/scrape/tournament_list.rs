@@ -16,14 +16,14 @@ pub type TournamentList = Vec<TournamentListing>;
 #[serde(crate = "rocket::serde")]
 #[serde(rename_all = "camelCase")]
 pub struct TournamentListing {
-    id: usize,
-    name: String,
-    location: String,
-    start_date: String,
-    end_date: String,
-    tag_urls: Vec<String>,
-    logo_url: Option<String>,
-    registration_status: RegistrationStatus,
+    pub id: usize,
+    pub name: String,
+    pub location: String,
+    pub start_date: String,
+    pub end_date: String,
+    pub tag_urls: Vec<String>,
+    pub logo_url: Option<String>,
+    pub registration_status: RegistrationStatus,
 }
 
 #[derive(Clone, Debug, Serialize)]

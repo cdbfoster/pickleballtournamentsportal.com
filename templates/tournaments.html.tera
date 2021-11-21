@@ -1,5 +1,5 @@
 {% extends "base" %}
 {% block body %}
     <main id="tournaments"></main>
-    <script src="scripts/tournaments.js"></script>
+    <script src="/scripts/tournaments.js"></script>
 {%- endblock body %}
