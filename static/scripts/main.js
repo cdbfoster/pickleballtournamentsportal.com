@@ -29,29 +29,39 @@ class Accordion {
 
 class Captcha {
   constructor() {
-    this.awaitingResponse = false;
+    this.captchaShown = false;
+    this.captchaLoaded = false;
   }
 
   view() {
-    return m("div.captcha", [
-      m("h1", "Please fill out this captcha"),
-      m("p", [
-        "Due to the way this site works, we get captcha'd pretty regularly.",
-      ]),
-      m("p", [
-        "Once you fill out the captcha and are redirected to ",
-        m("a", { href: "https://www.pickleballtournaments.com" }, "PickleballTournaments.com"),
-        ", you may return to this page and refresh to try again."
-      ]),
-      this.awaitingResponse ?
-        m("button.captcha-button", { onclick: () => location.reload() }, "Refresh") :
-        m("a.captcha-button", {
-          target: "_blank",
-          rel: "noopener noreferrer",
-          href: captcha.url,
-          onclick: () => this.awaitingResponse = true,
-        }, "Continue to captcha"),
-    ]);
+    return m(
+      "div.captcha",
+      {
+        class: this.captchaShown ? "shown" : undefined,
+      },
+      this.captchaShown ? [
+        m("h1", "Please fill out this captcha"),
+        m("div.iframe-shell", [
+          m("iframe", {
+            src: captcha.url,
+            onload: (event) => {
+              if (this.captchaLoaded == true) {
+                location.reload();
+              }
+              document.querySelector(".iframe-shell").scrollTo(0, 10000);
+              this.captchaLoaded = true;
+            },
+          }),
+        ]),
+      ] : [
+        m("div", [
+          m("h1", "Please fill out this captcha"),
+          m("p", "Due to the way this site works, we get captcha'd pretty regularly."),
+          m("p", "Once you fill out the captcha, the page will reload."),
+        ]),
+        m("button.captcha-button", { onclick: () => this.captchaShown = true }, "Show captcha"),
+      ],
+    );
   }
 }
 
