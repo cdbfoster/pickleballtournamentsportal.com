@@ -110,7 +110,7 @@ class Main {
       this.locationFilter = event.target.value.toLowerCase();
 
       this.locationMatches = Object.keys(abbreviations)
-        .filter(l => this.locationFilter.includes(l))
+        .filter(l => l.startsWith(this.locationFilter))
         .map(l => abbreviations[l]);
 
       this.locationMatches = this.locationMatches.concat(
@@ -222,16 +222,12 @@ class Main {
             return false;
           });
         } else {
-          let distances = list.map(t => [t, fuzzyCompare(t.location.toLowerCase(), this.locationFilter)]);
-          distances.sort((a, b) => a[1] - b[1]);
-          list = distances.filter(a => a[1] <= distances[0][1] + 1).map(a => a[0]);
+          list = filterArray(this.locationFilter, list, t => t.location);
         }
       }
 
       if (this.nameFilter != "") {
-        let distances = list.map(t => [t, fuzzyCompare(t.name.toLowerCase(), this.nameFilter)]);
-        distances.sort((a, b) => a[1] - b[1]);
-        list = distances.filter(a => a[1] <= distances[0][1] + 1).map(a => a[0]);
+        list = filterArray(this.nameFilter, list, t => t.name);
       }
 
       return list;
@@ -256,33 +252,35 @@ class Main {
           m("li", m("label", [m("input#show-closed", { type: "checkbox", checked: this.showClosed }), "Show closed"])),
         ]),
       ]),
-      ...(ongoingTournaments.length > 0 ? [
-        m("section#ongoing-tournaments.tournament-list", { key: "ongoing-tournaments" }, [
-          m("h2", "Ongoing Tournaments"),
-          m("ul", ongoingTournaments.slice(0, this.viewLimits.ongoing).map(t => m("li", { key: t.id }, m(TournamentListing, { tournament: t })))),
-          ...(ongoingTournaments.length > this.viewLimits.ongoing ? [
-            m("button.load-more", { onclick: () => this.viewLimits.ongoing += viewLimitIncrement }, "Load more results..."),
-          ] : []),
-        ]),
-      ] : []),
-      ...(futureTournaments.length > 0 ? [
-        m("section#future-tournaments.tournament-list", { key: "future-tournaments" }, [
-          m("h2", "Future Tournaments"),
-          m("ul", futureTournaments.slice(0, this.viewLimits.future).map(t => m("li", { key: t.id }, m(TournamentListing, { tournament: t })))),
-          ...(futureTournaments.length > this.viewLimits.future ? [
-            m("button.load-more", { onclick: () => this.viewLimits.future += viewLimitIncrement }, "Load more results..."),
-          ] : []),
-        ]),
-      ] : []),
-      ...(pastTournaments.length > 0 ? [
-        m("section#past-tournaments.tournament-list", { key: "past-tournaments" }, [
-          m("h2", "Past Tournaments"),
-          m("ul", pastTournaments.slice(0, this.viewLimits.past).map(t => m("li", { key: t.id }, m(TournamentListing, { tournament: t })))),
-          ...(pastTournaments.length > this.viewLimits.past ? [
-            m("button.load-more", { onclick: () => this.viewLimits.past += viewLimitIncrement }, "Load more results..."),
-          ] : []),
-        ]),
-      ] : []),
+      ...(filteredTournaments.length > 0 ? [
+        ...(ongoingTournaments.length > 0 ? [
+          m("section#ongoing-tournaments.tournament-list", { key: "ongoing-tournaments" }, [
+            m("h2", "Ongoing Tournaments"),
+            m("ul", ongoingTournaments.slice(0, this.viewLimits.ongoing).map(t => m("li", { key: t.id }, m(TournamentListing, { tournament: t })))),
+            ...(ongoingTournaments.length > this.viewLimits.ongoing ? [
+              m("button.load-more", { onclick: () => this.viewLimits.ongoing += viewLimitIncrement }, "Load more results..."),
+            ] : []),
+          ]),
+        ] : []),
+        ...(futureTournaments.length > 0 ? [
+          m("section#future-tournaments.tournament-list", { key: "future-tournaments" }, [
+            m("h2", "Future Tournaments"),
+            m("ul", futureTournaments.slice(0, this.viewLimits.future).map(t => m("li", { key: t.id }, m(TournamentListing, { tournament: t })))),
+            ...(futureTournaments.length > this.viewLimits.future ? [
+              m("button.load-more", { onclick: () => this.viewLimits.future += viewLimitIncrement }, "Load more results..."),
+            ] : []),
+          ]),
+        ] : []),
+        ...(pastTournaments.length > 0 ? [
+          m("section#past-tournaments.tournament-list", { key: "past-tournaments" }, [
+            m("h2", "Past Tournaments"),
+            m("ul", pastTournaments.slice(0, this.viewLimits.past).map(t => m("li", { key: t.id }, m(TournamentListing, { tournament: t })))),
+            ...(pastTournaments.length > this.viewLimits.past ? [
+              m("button.load-more", { onclick: () => this.viewLimits.past += viewLimitIncrement }, "Load more results..."),
+            ] : []),
+          ]),
+        ] : []),
+      ] : [m("p", { key: "no-matches" }, "No tournaments match the selected filters")]),
     ];
   }
 }

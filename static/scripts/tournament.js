@@ -68,24 +68,6 @@ class Main {
   }
 }
 
-function filterArray(filter, array, key) {
-  function sanitize(string) {
-    let stripSymbols = /[!@#$%^&*()\[\]{}\/?'\"\\;:|<>_=]/g;
-    return string.toLowerCase().replaceAll(stripSymbols, " ").split(/\s+/).filter(s => s.length > 0);
-  }
-
-  function matches(a, b) {
-    return a.every(x => b.some(y => y.startsWith(x)));
-  }
-
-  filter = sanitize(filter);
-  if (filter.length == 0) {
-    return array;
-  }
-
-  return array.filter(o => matches(filter, sanitize(key(o))));
-}
-
 class Schedule {
   constructor() {
     this.filter = "";
