@@ -151,11 +151,18 @@ h3 {
 }
 
 header {
-  align-items: center;
   background-color: #121E40;
+  padding: 1em;
+}
+
+header a {
+  align-items: center;
   display: flex;
   gap: 1em;
-  padding: 1em;
+}
+
+header a:hover {
+  text-decoration: none;
 }
 
 header #logo {
