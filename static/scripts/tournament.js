@@ -29,7 +29,7 @@ class Main {
           href: `https://www.pickleballtournaments.com/tournamentinfo.pl?tid=${tournamentId}`,
           rel: "noreferrer",
         }, "View on PickleballTournaments.com"),
-        ...(tournamentData.listing.logoUrl !== null ? [m("img", { src: tournamentData.listing.logoUrl })] : []),
+        tournamentData.listing.logoUrl !== null ? [m("img", { src: tournamentData.listing.logoUrl })] : [],
         m("h2.name", tournamentData.listing.name),
         m("p.dates", m.trust(datesString)),
       ]),
@@ -42,27 +42,24 @@ class Main {
         });
       })),
       m("section#data", [
-        ...(tournamentData.schedule.length != 0 ? [
+        tournamentData.schedule.length != 0 ? [
           m(Accordion, {
-            //expanded: true,
             title: m("h3", "Schedule"),
-            content: [
-              m(Schedule, { id: "schedule" })
-            ],
+            content: m(Schedule, { id: "schedule" }),
           }),
-        ] : []),
-        ...(tournamentData.eventGroups.length != 0 ? [
+        ] : [],
+        tournamentData.eventGroups.length != 0 ? [
           m(Accordion, {
             title: m("h3", "Events"),
             content: m("p", "Blah"),
           }),
-        ] : []),
-        ...(tournamentData.players.length != 0 ? [
+        ] : [],
+        tournamentData.players.length != 0 ? [
           m(Accordion, {
             title: m("h3", "Players"),
             content: m("p", "Blah"),
           }),
-        ] : []),
+        ] : [],
       ]),
     ];
   }
@@ -110,26 +107,28 @@ class Schedule {
       },
       [
         m("input.filter", { placeholder: "Filter events" }),
-        ...(eventDates.length > 0 ? eventDates.map(d => m(
+        eventDates.length > 0 ? eventDates.map(d => m(
           "div.day",
+          { key: d[0] },
           [
             m("h4.date", printDate(d[0], true)),
             m("div.events", { style: { "grid-template-columns": `8em repeat(${venues.length}, 1fr)` } }, [
-              m("h5.header", "Time"),
-              ...venues.map(v => m("h5.header", v)),
+              m("h5.header", { key: d[0] + "Time" }, "Time"),
+              ...venues.map(v => m("h5.header", { key: d[0] + v }, v)),
               ...d[1].map(e => [
-                m("div.time", e[0]),
-                ...venues.map(v => m("div.venue-events", [
+                m("div.time", { key: d[0] + e[0] }, e[0]),
+                ...venues.map(v => m("div.venue-events", { key: d[0] + e[0] + v }, [
                   m("div.venue", v),
                   m("ul", (e[1][v] || []).map(event => m(
                     "li.event",
+                    { key: event.event },
                     event.link ? m("a", { href: `/tournament/${tournamentId}/event/${encodeURIComponent(event.event)}` }, event.event) : event.event,
                   ))),
                 ])),
-              ]),
+              ]).flat(),
             ]),
           ],
-        )) : [m("p", "No scheduled events match the filter")]),
+        )) : [m("p", { key: "no-matches" }, "No scheduled events match the filter")],
       ],
     );
   }
