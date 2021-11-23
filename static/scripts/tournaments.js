@@ -293,7 +293,7 @@ class TournamentListing {
 
     let datesString = tournament.startDate != tournament.endDate ? `${printDate(tournament.startDate)} - ${printDate(tournament.endDate)}` : printDate(tournament.startDate);
     return m("div.tournament-listing", [
-      m("h3.name", m("a", { href: `https://www.pickleballtournaments.com/tournamentinfo.pl?tid=${tournament.id}` }, m.trust(tournament.name))),
+      m("h3.name", m("a", { href: `/tournament/${tournament.id}` }, m.trust(tournament.name))),
       m("p.location", m.trust(tournament.location)),
       m("p.dates", datesString),
       m("div.logo", tournament.logoUrl !== null ? [m(LazyImage, { src: tournament.logoUrl })] : []),
