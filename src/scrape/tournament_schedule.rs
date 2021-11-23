@@ -24,7 +24,7 @@ pub struct ScheduleItem {
     pub time: String,
     pub venue: String,
     pub event: String,
-    pub link: bool,
+    pub link: Option<String>,
 }
 
 pub type ScheduleGuard<'a> =
@@ -124,15 +124,16 @@ pub async fn tournament_schedule<'a>(
                                                 .iter()
                                                 .flat_map(|g| g.events.iter())
                                                 .find(|e| e.name == name)
-                                                .is_some()
-                                                || url
-                                                    .and_then(|url| {
+                                                .map(|e| e.name.clone())
+                                                .or_else(|| {
+                                                    url.and_then(|url| {
                                                         event_groups
                                                             .iter()
                                                             .flat_map(|g| g.events.iter())
                                                             .find(|e| e.content.url() == url)
+                                                            .map(|e| e.name.clone())
                                                     })
-                                                    .is_some(),
+                                                }),
                                             event: name,
                                         })
                                     });

@@ -122,7 +122,7 @@ class Schedule {
                   m("ul", (e[1][v] || []).map(event => m(
                     "li.event",
                     { key: event.event },
-                    event.link ? m("a", { href: `/tournament/${tournamentId}/event/${encodeURIComponent(event.event)}` }, event.event) : event.event,
+                    event.link ? m("a", { href: `/tournament/${tournamentId}/event/${encodeURIComponent(event.link)}` }, event.event) : event.event,
                   ))),
                 ])),
               ]).flat(),
