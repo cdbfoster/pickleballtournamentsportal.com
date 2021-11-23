@@ -187,17 +187,19 @@ function fuzzyCompare(a, b) {
   return minimumDistance;
 }
 
-function printDate(isoDate) {
+function printDate(isoDate, pretty = false) {
   let utc = new Date(isoDate);
   let local = new Date();
   local.setFullYear(utc.getUTCFullYear());
   local.setMonth(utc.getUTCMonth());
   local.setDate(utc.getUTCDate());
+
   return local.toLocaleString(
     "default",
     {
+      weekday: pretty ? "short" : undefined,
       year: "numeric",
-      month: "numeric",
+      month: pretty ? "short" : "numeric",
       day: "numeric",
     },
   );
