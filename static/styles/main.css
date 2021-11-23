@@ -64,6 +64,20 @@ body {
   text-decoration: none;
 }
 
+.filter {
+  border: 1px solid #ced4d9;
+  border-radius: 4px;
+  font-size: 1em;
+  padding: 0.5em 0.75em;
+  transition: box-shadow 0.15s ease-in-out;
+  width: 100%;
+}
+
+.filter:focus {
+  box-shadow: 0 0 0 0.2em rgba(0, 123, 255, 0.25);
+  outline: 0;
+}
+
 h1, h2 {
   font-family: "Fjalla One", sans-serif;
 }
@@ -221,20 +235,6 @@ main {
 
 #tournaments #filter > :not(:first-child) {
   margin: 0 1em;
-}
-
-#tournaments #filter input[type="text"] {
-  border: 1px solid #ced4d9;
-  border-radius: 4px;
-  font-size: 1em;
-  padding: 0.5em 0.75em;
-  transition: box-shadow 0.15s ease-in-out;
-  width: 100%;
-}
-
-#tournaments #filter input[type="text"]:focus {
-  box-shadow: 0 0 0 0.2em rgba(0, 123, 255, 0.25);
-  outline: 0;
 }
 
 #tournaments #filter #view-toggles {

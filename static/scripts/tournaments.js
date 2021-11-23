@@ -247,8 +247,8 @@ class Main {
     return [
       m("section#filter", { key: "filter"}, [
         m("h2", "Tournament Search"),
-        m("label#name-filter-label", m("input#name-filter", { type: "text", placeholder: "Filter by name" })),
-        m("label#location-filter-label", m("input#location-filter", { type: "text", placeholder: "Filter by location" })),
+        m("label#name-filter-label", m("input#name-filter.filter", { type: "text", placeholder: "Filter by name" })),
+        m("label#location-filter-label", m("input#location-filter.filter", { type: "text", placeholder: "Filter by location" })),
         m("ul#view-toggles", [
           m("li", m("label", [m("input#show-ongoing", { type: "checkbox", checked: this.showOngoing }), "Show ongoing"])),
           m("li", m("label", [m("input#show-future", { type: "checkbox", checked: this.showFuture }), "Show future"])),
