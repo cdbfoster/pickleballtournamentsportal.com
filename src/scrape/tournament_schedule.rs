@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use chrono::prelude::*;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use rocket::serde::Serialize;
@@ -66,7 +67,17 @@ pub async fn tournament_schedule<'a>(
 
                     for day_element in tournament_page.select(&SELECTORS.day) {
                         let mut headers = day_element.select(&SELECTORS.header);
-                        let date = headers.next().unwrap().inner_html();
+
+                        let date_header = headers.next().unwrap().inner_html();
+                        let date_match = PATTERNS.date.captures(&date_header).unwrap();
+                        let date = NaiveDate::from_ymd(
+                            date_match[3].parse::<i32>().unwrap() + 2000,
+                            date_match[1].parse().unwrap(),
+                            date_match[2].parse().unwrap(),
+                        )
+                        .format("%Y-%m-%d")
+                        .to_string();
+
                         let venues = {
                             let mut values = headers.map(|h| h.inner_html()).collect::<Vec<_>>();
                             values.pop(); // The last one isn't a venue.
@@ -155,9 +166,11 @@ static SELECTORS: Lazy<Selectors> = Lazy::new(|| Selectors {
 struct Patterns {
     url: Regex,
     name: Regex,
+    date: Regex,
 }
 
 static PATTERNS: Lazy<Patterns> = Lazy::new(|| Patterns {
     url: Regex::new(r#"href="([^"]+)""#).unwrap(),
     name: Regex::new(r"^(:?<a[^>]+>)?([^<]+)(:?</a>)?$").unwrap(),
+    date: Regex::new(r"(\d{1, 2})/(\d{1, 2})/(\d{2})").unwrap(),
 });

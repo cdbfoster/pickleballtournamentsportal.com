@@ -64,7 +64,6 @@ pub async fn tournament_player_list<'a>(
                             .await?
                             .clone();
 
-
                         let tournament_page_html = Html::parse_document(&tournament_page_raw_html);
 
                         Ok(tournament_page_html
