@@ -13,6 +13,58 @@ a:hover {
   text-decoration: underline;
 }
 
+.accordion {
+  margin-top: 1em;
+  padding-bottom: 1em;
+  position: relative;
+}
+
+.accordion:not(:last-of-type) {
+  border-bottom: 1px solid #E4E4E4;
+}
+
+.accordion > .content {
+  opacity: 1;
+  position: relative;
+  transition: opacity 0.35s ease-in;
+}
+
+.accordion.collapsed > .content {
+  opacity: 0;
+}
+
+.accordion > .title {
+  cursor: pointer;
+}
+
+.accordion > .title > .content > * {
+  margin: 0;
+  padding: 0;
+}
+
+.accordion > .title > .content > ::before {
+  content: "██";
+  display: inline-block;
+  height: 1em;
+  margin-right: 0.25em;
+  mask-image: url("/images/accordion-expander.svg");
+  mask-position: center;
+  mask-size: 75%;
+  position: relative;
+  transition: transform 0.15s ease-out 0s;
+  top: 0.15em;
+  width: 1em;
+}
+
+.accordion.collapsed > .title > .content > ::before {
+  transform: rotate(-90deg);
+}
+
+.accordion > .content {
+  margin-left: 0.5em;
+  padding-left: 1em;
+}
+
 body {
   display: flex;
   flex-flow: column nowrap;

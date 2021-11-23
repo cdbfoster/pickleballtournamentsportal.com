@@ -1,3 +1,32 @@
+class Accordion {
+  constructor(vnode) {
+    this.expanded = vnode.attrs.expanded || false;
+  }
+
+  view(vnode) {
+    let title = vnode.attrs.title;
+    let content = vnode.attrs.content;
+
+    return m(
+      "div.accordion",
+      {
+        class: (vnode.attrs.class ? vnode.attrs.class + " " : "") + (this.expanded ? "expanded" : "collapsed"),
+      },
+      [
+        m(
+          "div.title",
+          { onclick: () => this.expanded = !this.expanded },
+          [
+            m("div.expander"),
+            m("div.content", title),
+          ],
+        ),
+        m("div.content", this.expanded ? content : []),
+      ],
+    )
+  }
+}
+
 class Captcha {
   constructor() {
     this.awaitingResponse = false;
