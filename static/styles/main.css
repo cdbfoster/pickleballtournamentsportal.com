@@ -23,7 +23,9 @@ body {
 }
 
 .captcha {
+  align-self: stretch;
   display: grid;
+  grid-area: 1 / 1 / -1 / -1;
   grid-gap: 2em;
   grid-template-rows: 1fr min-content min-content 2fr;
   justify-items: center;
@@ -120,15 +122,17 @@ html {
 
 main {
   max-width: 95em;
-  padding: 1em;
+  padding: 2em;
   flex-grow: 1;
   margin: 0 auto;
 }
 
 .loading {
+  align-self: stretch;
   display: grid;
   font-family: "Fjalla One", sans-serif;
   font-size: 2em;
+  grid-area: 1 / 1 / -1 / -1;
   grid-gap: 1em;
   grid-template-rows: 1fr 2fr;
   justify-items: center;
@@ -202,16 +206,6 @@ main {
     "search tournaments";
   grid-template-columns: minmax(16em, min(25em, 25%)) 1fr;
   position: relative;
-}
-
-#tournaments .loading {
-  align-self: stretch;
-  grid-area: search / search / tournaments / tournaments;
-}
-
-#tournaments .captcha {
-  align-self: stretch;
-  grid-area: search / search / tournaments / tournaments;
 }
 
 #tournaments #filter {
