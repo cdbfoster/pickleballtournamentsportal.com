@@ -1,0 +1,15 @@
+{% extends "base" %}
+
+{% block title %}Not Found | {{ super() }}{% endblock title %}
+
+{% block head %}{% endblock head %}
+
+{% block body %}
+    <main id="not-found" class="error-handler">
+      <section>
+        <h2>Not Found</h2>
+        <p>There are a few possible reasons for this; perhaps the most likely of which is that the feature you're after hasn't been made yet.  Stay tuned!</p>
+        <p>Alternatively, <a href="https://www.pickleballtournaments.com">PickleballTournaments.com</a> could have changed the data out from under us, and we're a bit behind in reflecting the change.  If this has worked in the past, try again in a little while.</p>
+      </section>
+    </main>
+{%- endblock body %}

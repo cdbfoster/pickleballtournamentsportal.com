@@ -257,19 +257,19 @@ main {
 
 /* Welcome ================================================================= */
 
-#welcome {
+#welcome, .error-handler {
   display: flex;
   flex-flow: column nowrap;
 }
 
-#welcome #intro {
+#welcome #intro, .error-handler section {
   align-self: center;
   max-width: 40em;
   padding: 1em;
 }
 
-#welcome p {
-  line-height: 1.5em;
+#welcome p, .error-handler p {
+  line-height: 1.8em;
 }
 
 /* Tournament ============================================================== */

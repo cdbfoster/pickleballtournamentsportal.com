@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8" />
     <link rel="stylesheet" type="text/css" href="/styles/main.css" />
     <title>{% block title %}PickleballTournamentsPortal.com{% endblock title %}</title>
-    <script src="/scripts/mithril.js"></script><!--Get a minified version before deployment-->
     {%- block head %}
+    <script src="/scripts/mithril.js"></script><!--Get a minified version before deployment-->
     <script src="/scripts/main.js"></script>
     {%- endblock head %}
   </head>

@@ -20,13 +20,25 @@ fn landing_page() -> Template {
     Template::render("index", &context)
 }
 
+#[catch(404)]
+fn not_found() -> Template {
+    let context: HashMap<String, String> = HashMap::new();
+    Template::render("404", &context)
+}
+
+#[get("/not-found")]
+fn not_found_page() -> Template {
+    not_found()
+}
+
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .mount("/", routes![landing_page])
+        .mount("/", routes![landing_page, not_found_page])
         .mount("/", routes![tournaments::fetch, tournaments::search])
         .mount("/", routes![tournament::data, tournament::page])
         .mount("/", FileServer::from(relative!("static")))
+        .register("/", catchers![not_found])
         .attach(Template::fairing())
         .manage(ScrapeCache::default())
 }

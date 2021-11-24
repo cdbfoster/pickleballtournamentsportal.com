@@ -10,6 +10,10 @@ fetch(`/tournament/${tournamentId}/data`)
       captcha = data.captcha;
     } else {
       console.error("Error: " + data.error.reason);
+
+      if (data.error.reason == "tournament not found") {
+        window.location.replace("/not-found");
+      }
     }
     document.title = `${tournamentData.listing.name} | PickleballTournamentsPortal.com`;
     m.redraw();
