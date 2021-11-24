@@ -57,7 +57,7 @@ class Main {
         tournamentData.players.length != 0 ? [
           m(Accordion, {
             title: m("h3", "Players"),
-            content: m("p", "Blah"),
+            content: m(Players, { id: "players" }),
           }),
         ] : [],
       ]),
@@ -170,6 +170,59 @@ class Events {
             ))),
           ],
         )) : [m("p", { key: "no-matches" }, "No events match the filter")],
+      ],
+    );
+  }
+}
+
+
+class Players {
+  constructor() {
+    this.filter = "";
+  }
+
+  oncreate(vnode) {
+    vnode.dom.querySelector(".filter").addEventListener("input", event => {
+      this.filter = event.target.value;
+      m.redraw();
+    });
+  }
+
+  view(vnode) {
+    let players = filterArray(this.filter, tournamentData.players, p => `${p.firstName} ${p.nickName || ""} ${p.lastName}`);
+
+    return m("div",
+      {
+        id: vnode.attrs.id,
+      },
+      [
+        m("input.filter", { placeholder: "Filter players" }),
+        players.length > 0 ? [
+          m(
+            "h4.player-count",
+            players.length < tournamentData.players.length ?
+              `Showing ${players.length} out of ${tournamentData.players.length} players` :
+              `${players.length} players`,
+          ),
+          m(
+            "div.player-list",
+            [
+              m("h5.header", "Name"),
+              m("h5.header", "From"),
+              players.map(p => m.fragment(
+                { key: p.id },
+                [
+                  m(
+                    "a.player-name",
+                    { href: `/tournament/${tournamentId}/player/${p.id}` },
+                    `${p.lastName}, ${p.firstName}${p.nickName ? ' "' + p.nickName + '"' : ""}`,
+                  ),
+                  m("p.player-from", p.from),
+                ],
+              )),
+            ],
+          ),
+        ] : [m("p", "No players match the filter")],
       ],
     );
   }
