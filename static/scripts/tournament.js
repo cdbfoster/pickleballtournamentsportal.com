@@ -51,7 +51,7 @@ class Main {
         tournamentData.eventGroups.length != 0 ? [
           m(Accordion, {
             title: m("h3", "Events"),
-            content: m("p", "Blah"),
+            content: m(Events, { id: "events" }),
           }),
         ] : [],
         tournamentData.players.length != 0 ? [
@@ -129,6 +129,47 @@ class Schedule {
             ]),
           ],
         )) : [m("p", { key: "no-matches" }, "No scheduled events match the filter")],
+      ],
+    );
+  }
+}
+
+class Events {
+  constructor() {
+    this.filter = "";
+  }
+
+  oncreate(vnode) {
+    vnode.dom.querySelector(".filter").addEventListener("input", event => {
+      this.filter = event.target.value;
+      m.redraw();
+    });
+  }
+
+  view(vnode) {
+    let eventGroups = tournamentData.eventGroups.map(g => ({
+      name: g.name,
+      events: filterArray(this.filter, g.events, e => e.name).map(e => e.name).sort(),
+    })).filter(g => g.events.length > 0);
+
+    return m("div",
+      {
+        id: vnode.attrs.id,
+      },
+      [
+        m("input.filter", { placeholder: "Filter events" }),
+        eventGroups.map(g => m(
+          "div.event-group",
+          { key: g.name },
+          [
+            m("h4.name", g.name),
+            m("ul", g.events.map(e => m(
+              "li.event",
+              { key: e },
+              m("a", { href: `/tournament/${tournamentId}/event/${encodeURIComponent(e)}` }, e),
+            ))),
+          ],
+        )),
       ],
     );
   }

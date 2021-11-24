@@ -363,14 +363,34 @@ main {
   font-size: 1.8em;
 }
 
-#tournament #schedule .filter {
+#tournament #data .filter {
   bottom: calc(100% + 1em);
   position: absolute;
   right: 0;
   width: calc(100% - 15em);
 }
 
-#tournament #schedule .date {
+#tournament #data .event {
+  position: relative;
+}
+
+#tournament #data .event:not(:last-of-type) {
+  margin-bottom: 0.6em;
+}
+
+#tournament #data .event::before {
+  background-color: #707070;
+  border-radius: 50%;
+  content: "";
+  display: inline-block;
+  height: 0.25em;
+  left: -1em;
+  position: absolute;
+  top: calc(50% - 0.15em);
+  width: 0.25em;
+}
+
+#tournament #schedule .date, #tournament #events .event-group > .name {
   font-family: "Nunito", sans-serif;
   margin: 1em 0;
 }
@@ -398,30 +418,16 @@ main {
   display: none;
 }
 
-#tournament #schedule .venue-events ul {
+#tournament #schedule ul {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-#tournament #schedule .venue-events .event {
-  position: relative;
-}
-
-#tournament #schedule .venue-events .event:not(:last-of-type) {
-  margin-bottom: 0.6em;
-}
-
-#tournament #schedule .venue-events .event::before {
-  background-color: #707070;
-  border-radius: 50%;
-  content: "";
-  display: inline-block;
-  height: 0.25em;
-  left: -1em;
-  position: absolute;
-  top: calc(50% - 0.15em);
-  width: 0.25em;
+#tournament #events ul {
+  list-style: none;
+  margin: 0;
+  padding-left: 2em;
 }
 
 /* Tournaments ============================================================= */
