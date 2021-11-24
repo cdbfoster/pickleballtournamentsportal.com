@@ -11,6 +11,7 @@ fetch(`/tournament/${tournamentId}/data`)
     } else {
       console.error("Error: " + data.error.reason);
     }
+    document.title = `${tournamentData.listing.name} | PickleballTournamentsPortal.com`;
     m.redraw();
   })
   .catch(error => console.error(error));

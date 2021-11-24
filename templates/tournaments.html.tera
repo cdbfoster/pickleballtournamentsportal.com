@@ -1,4 +1,7 @@
 {% extends "base" %}
+
+{% block title %}Tournament Search | {{ super() }}{% endblock title %}
+
 {% block body %}
     <main id="tournaments"></main>
     <script src="/scripts/tournaments.js"></script>
