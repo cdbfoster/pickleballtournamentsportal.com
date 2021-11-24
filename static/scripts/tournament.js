@@ -158,7 +158,7 @@ class Events {
       },
       [
         m("input.filter", { placeholder: "Filter events" }),
-        eventGroups.map(g => m(
+        eventGroups.length > 0 ? eventGroups.map(g => m(
           "div.event-group",
           { key: g.name },
           [
@@ -169,7 +169,7 @@ class Events {
               m("a", { href: `/tournament/${tournamentId}/event/${encodeURIComponent(e)}` }, e),
             ))),
           ],
-        )),
+        )) : [m("p", { key: "no-matches" }, "No events match the filter")],
       ],
     );
   }
