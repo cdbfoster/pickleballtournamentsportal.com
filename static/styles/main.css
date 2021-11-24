@@ -294,7 +294,8 @@ main {
   grid-template-areas:
     "link link"
     "logo name"
-    "logo dates";
+    "logo dates"
+    "logo registration";
   grid-template-columns: auto 1fr;
   padding: 2em;
 }
@@ -306,6 +307,7 @@ main {
 #tournament #listing img {
   grid-area: logo;
   height: auto;
+  margin-right: 1em;
   max-height: 250px;
   max-width: 250px;
   width: auto;
@@ -338,6 +340,35 @@ main {
 
 #tournament #listing .dates .date:last-of-type:not(:first-of-type) {
   margin-left: 1em;
+}
+
+#tournament #listing .registration-status {
+  grid-area: registration;
+}
+
+#tournament #listing .registration-status .status {
+  font-weight: 600;
+  margin: 0 0 0.25em;
+  text-shadow: 0px 0px 15px black;
+}
+
+#tournament #listing .registration-status .detail {
+  color: white;
+  font-size: 0.8em;
+  margin: 0;
+  text-shadow: 0px 0px 15px black;
+}
+
+#tournament #listing .registration-status .closed {
+  color: #ff8080;
+}
+
+#tournament #listing .registration-status .open {
+  color: #90ff90;
+}
+
+#tournament #listing .registration-status .open-soon {
+  color: #9595FF;
 }
 
 #tournament #info {

@@ -37,6 +37,7 @@ class Main {
         tournamentData.listing.logoUrl !== null ? [m("img", { src: tournamentData.listing.logoUrl })] : [],
         m("h2.name", tournamentData.listing.name),
         m("p.dates", m.trust(datesString)),
+        m(RegistrationStatus, { status: tournamentData.listing.registrationStatus }),
       ]),
       m("section#info", tournamentData.info.map(info => {
         let title, content;
@@ -53,7 +54,7 @@ class Main {
             content: m(Schedule, { id: "schedule" }),
           }),
         ] : [],
-        tournamentData.eventGroups.length != 0 ? [
+        tournamentData.eventGroups.some(g => g.events.length != 0) ? [
           m(Accordion, {
             title: m("h3", "Events"),
             content: m(Events, { id: "events" }),

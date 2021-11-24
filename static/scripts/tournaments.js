@@ -301,47 +301,6 @@ class TournamentListing {
   }
 }
 
-class RegistrationStatus {
-  view(vnode) {
-    let status = vnode.attrs.status;
-
-    let registrationClass;
-    let registrationType;
-    let detail;
-
-    if (typeof(status) == "string") {
-      if (status == "closed") {
-        registrationClass = "closed";
-        registrationType = "Closed";
-      } else if (status == "notOpen") {
-        registrationClass = "closed";
-        registrationType = "Not open";
-      }
-      detail = null;
-    } else if (typeof(status) == "object") {
-      let s = Object.keys(status)[0];
-      if (s == "open") {
-        registrationClass = "open";
-        registrationType = "Open";
-        detail = `Registration closes ${printDate(status[s].deadline)}`;
-      } else if (s == "openSoon") {
-        registrationClass = "open-soon";
-        registrationType = "Opens soon";
-        detail = `Registration opens ${printDate(status[s].startDate)} at ${status[s].startTime}`;
-      } else if (s == "closedToNew") {
-        registrationClass = "closed";
-        registrationType = "Closed to new registrations";
-        detail = `Payment deadline: ${status[s].paymentDeadline}`;
-      }
-    }
-
-    return m("div.registration-status", [
-      m("p.status", { class: registrationClass }, registrationType),
-      ...(detail ? [m("p.detail", detail)] : []),
-    ]);
-  }
-}
-
 let main = document.querySelector("main");
 
 m.mount(main, {
