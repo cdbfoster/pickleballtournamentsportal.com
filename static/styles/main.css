@@ -50,6 +50,9 @@ a:hover {
   mask-image: url("/images/accordion-expander.svg");
   mask-position: center;
   mask-size: 75%;
+  -webkit-mask-image: url("/images/accordion-expander.svg");
+  -webkit-mask-position: center;
+  -webkit-mask-size: 75%;
   position: relative;
   transition: transform 0.15s ease-out 0s;
   top: 0.15em;
