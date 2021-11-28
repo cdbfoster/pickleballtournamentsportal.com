@@ -6,6 +6,7 @@ fetch(`/tournament/${tournamentId}/data`)
   .then(data => {
     if ("tournamentData" in data) {
       tournamentData = data.tournamentData;
+      document.title = `${tournamentData.listing.name} | PickleballTournamentsPortal.com`;
     } else if ("captcha" in data) {
       captcha = data.captcha;
     } else {
@@ -15,7 +16,6 @@ fetch(`/tournament/${tournamentId}/data`)
         window.location.replace("/not-found");
       }
     }
-    document.title = `${tournamentData.listing.name} | PickleballTournamentsPortal.com`;
     m.redraw();
   })
   .catch(error => console.error(error));
