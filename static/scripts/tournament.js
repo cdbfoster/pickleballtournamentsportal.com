@@ -125,11 +125,11 @@ class Schedule {
                 m("div.time", { key: d[0] + e[0] }, e[0]),
                 ...venues.map(v => m("div.venue-events", { key: d[0] + e[0] + v }, [
                   m("div.venue", v),
-                  m("ul", (e[1][v] || []).map(event => m(
+                  e[1][v] ? m("ul", e[1][v].map(event => m(
                     "li.event",
                     { key: event.event },
                     event.link ? m("a", { href: `/tournament/${tournamentId}/event/${encodeURIComponent(event.link)}` }, event.event) : event.event,
-                  ))),
+                  ))) : [],
                 ])),
               ]).flat(),
             ]),
@@ -221,9 +221,9 @@ class Players {
                   m(
                     "a.player-name",
                     { href: `/tournament/${tournamentId}/player/${p.id}` },
-                    `${p.lastName}, ${p.firstName}${p.nickName ? ' "' + p.nickName + '"' : ""}`,
+                    m.trust(`${p.lastName}, ${p.firstName}${p.nickName ? ' "' + p.nickName + '"' : ""}`),
                   ),
-                  m("p.player-from", p.from),
+                  m("p.player-from", m.trust(p.from)),
                 ],
               )),
             ],

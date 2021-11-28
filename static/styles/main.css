@@ -136,6 +136,34 @@ body {
   text-decoration: none;
 }
 
+@media (max-width: 1275px) {
+  .captcha iframe {
+    height: 1000px;
+  }
+}
+
+@media (max-width: 960px) {
+  .captcha iframe {
+    height: 1150px;
+  }
+}
+
+@media (max-width: 550px) {
+  .captcha h1 {
+    font-size: 1.9em;
+  }
+
+  .captcha .iframe-shell {
+    height: calc(100vh - 14em);
+  }
+}
+
+@media (max-width: 450px) {
+  .captcha iframe {
+    height: 1275px;
+  }
+}
+
 .filter {
   border: 1px solid #ced4d9;
   border-radius: 4px;
@@ -203,6 +231,22 @@ main {
   max-width: 95em;
   padding: 2em;
   width: 100%;
+}
+
+@media (max-width: 825px) {
+  header h1 {
+    font-size: 2em;
+  }
+}
+
+@media (max-width: 550px) {
+  header h1 {
+    font-size: 1.5em;
+  }
+
+  main {
+    padding: 1em;
+  }
 }
 
 .loading {
@@ -307,7 +351,7 @@ main {
 #tournament #listing img {
   grid-area: logo;
   height: auto;
-  margin-right: 1em;
+  margin-right: 0.5em;
   max-height: 250px;
   max-width: 250px;
   width: auto;
@@ -385,7 +429,6 @@ main {
 
 #tournament #data {
   grid-area: data;
-  padding-left: 4em;
 }
 
 #tournament #data h3 {
@@ -426,6 +469,10 @@ main {
   color: white;
 }
 
+#tournament #data .header:not(:last-of-type) {
+  border-right: 1px solid white;
+}
+
 #tournament #schedule .date, #tournament #events .event-group > .name, #tournament #players .player-count {
   font-family: "Nunito", sans-serif;
   margin: 1em 0;
@@ -445,7 +492,11 @@ main {
   padding: 1em;
 }
 
-#tournament #schedule .venue-events .venue {
+#tournament #players .player-list > * {
+  overflow-wrap: anywhere;
+}
+
+#tournament #schedule .events .venue {
   display: none;
 }
 
@@ -466,6 +517,135 @@ main {
   border-right: 1px solid #E4E4E4;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
+}
+
+@media (max-width: 1435px) {
+  #tournament {
+    align-items: stretch;
+    display: flex;
+    flex-flow: column nowrap;
+    gap: 0;
+    overflow-anchor: none;
+    padding: 0;
+  }
+
+  #tournament #listing {
+    order: 0;
+  }
+
+  #tournament #info {
+    align-self: center;
+    border: 0;
+    display: flex;
+    flex-flow: column nowrap;
+    max-width: 100%;
+    order: 2;
+    padding: 0 2em;
+    width: 60em;
+  }
+
+  #tournament #data {
+    align-self: center;
+    max-width: 100%;
+    order: 1;
+    padding: 1em 2em 0;
+    width: 60em;
+  }
+
+  #tournament .captcha, #tournament .loading {
+    flex-grow: 1;
+  }
+}
+
+@media (max-width: 825px) {
+  #tournament #schedule .date {
+    background-color: #121E40;
+    color: white;
+    padding: 1em;
+  }
+
+  #tournament #schedule .events {
+    border: none;
+    display: flex;
+    flex-flow: column nowrap;
+    margin: 0;
+  }
+
+  #tournament #schedule .events > * {
+    border: none;
+    padding: 0 1em;
+  }
+
+  #tournament #schedule .venue-events {
+    padding-left: 2.5em;
+  }
+
+  #tournament #schedule .events .venue:not(:last-child) {
+    display: block;
+    margin-bottom: 0.5em;
+  }
+
+  #tournament #schedule .events .header {
+    display: none;
+  }
+
+  #tournament #schedule .events .time {
+    font-weight: 700;
+    margin-bottom: 1em;
+  }
+
+  #tournament #schedule .events .time:not(:first-of-type) {
+    border-top: 1px solid #E4E4E4;
+    padding-top: 1em;
+  }
+
+  #tournament #schedule ul {
+    margin-bottom: 1em;
+    padding-left: 2em;
+  }
+}
+
+@media (max-width: 550px) {
+  #tournament #listing {
+    grid-gap: 1em;
+    grid-template-areas:
+      "link link"
+      "logo name"
+      "dates dates"
+      "registration registration";
+    padding: 1em;
+  }
+
+  #tournament #listing img {
+    margin: 0;
+    max-height: 100px;
+    max-width: 100px;
+  }
+
+  #tournament #listing .name {
+    font-size: 2em;
+  }
+
+  #tournament #data {
+    padding: 0 0.5em;
+  }
+
+  #tournament #data h3 {
+    font-size: 1.5em;
+  }
+
+  #tournament #data .filter {
+    bottom: calc(100% + 0.75em);
+    width: calc(100% - 8em);
+  }
+
+  #tournament #info {
+    padding: 0 0.5em;
+  }
+
+  #tournament #info h3 {
+    font-size: 1.1em;
+  }
 }
 
 /* Tournaments ============================================================= */
@@ -650,12 +830,6 @@ main {
   background-color: #DDDDFF;
 }
 
-@media (max-width: 1275px) {
-  .captcha iframe {
-    height: 1000px;
-  }
-}
-
 @media (max-width: 1000px) {
   #tournaments {
     align-items: stretch;
@@ -667,26 +841,12 @@ main {
     position: unset;
   }
 
-  #tournaments .captcha {
+  #tournaments .captcha, #tournaments .loading {
     flex-grow: 1;
-  }
-
-  #tournaments .loading {
-    flex-grow: 1;
-  }
-}
-
-@media (max-width: 960px) {
-  .captcha iframe {
-    height: 1150px;
   }
 }
 
 @media (max-width: 825px) {
-  header h1 {
-    font-size: 2em;
-  }
-
   #tournaments .tournament-listing {
     grid-template-areas:
     "name logo"
@@ -713,22 +873,6 @@ main {
 }
 
 @media (max-width: 550px) {
-  header h1 {
-    font-size: 1.5em;
-  }
-
-  main {
-    padding: 1em;
-  }
-
-  .captcha h1 {
-    font-size: 1.9em;
-  }
-
-  .captcha .iframe-shell {
-    height: calc(100vh - 14em);
-  }
-
   #tournaments #filter h2 {
     font-size: 1.2em;
   }
@@ -759,11 +903,5 @@ main {
 
   #tournaments .tournament-listing .name {
     font-size: 1.2em;
-  }
-}
-
-@media (max-width: 450px) {
-  .captcha iframe {
-    height: 1275px;
   }
 }
