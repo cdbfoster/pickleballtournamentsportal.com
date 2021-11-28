@@ -497,6 +497,7 @@ main {
 
 #tournament #players .player-list > * {
   overflow-wrap: anywhere;
+  word-break: break-word; /* because Safari is bad */
 }
 
 #tournament #schedule .events .venue {
