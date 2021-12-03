@@ -9,7 +9,7 @@ use scraper::{ElementRef, Html, Selector};
 use crate::client::Client;
 use crate::scrape::{
     ScrapeCache, ScrapeResult, TOURNAMENT_EVENT_LIST_REFRESH,
-    TOURNAMENT_EVENT_BRACKET_PAGE_REFRESH, TOURNAMENT_EVENT_PLAYER_LIST_REFRESH,
+    TOURNAMENT_EVENT_BRACKET_PAGE_REFRESH, TOURNAMENT_EVENT_PLAYER_LIST_PAGES_REFRESH,
     TOURNAMENT_PAGE_REFRESH,
 };
 use crate::util::cache::{CacheGuard, CacheMapGuard};
@@ -201,7 +201,7 @@ pub async fn tournament_event_group_list<'a>(
                                         .pages
                                         .retrieve_or_update(
                                             Duration::from_secs(
-                                                TOURNAMENT_EVENT_PLAYER_LIST_REFRESH,
+                                                TOURNAMENT_EVENT_PLAYER_LIST_PAGES_REFRESH,
                                             ),
                                             url,
                                             |url| async {
