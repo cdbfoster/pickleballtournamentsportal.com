@@ -143,8 +143,9 @@ class RegistrationStatus {
 
 function filterArray(filter, array, key) {
   function sanitize(string) {
-    let stripSymbols = /[!@#$%^&*()\[\]{}\/?'\"\\;:|<>_=]/g;
-    return string.toLowerCase().replaceAll(stripSymbols, " ").split(/\s+/).filter(s => s.length > 0);
+    let stripSymbols = /['"]/g;
+    let splitSymbols = /[!@#$%^&*()\[\]{}\/?\\;:|<>_=-]/g;
+    return string.toLowerCase().replaceAll(stripSymbols, "").replaceAll(splitSymbols, " ").split(/\s+/).filter(s => s.length > 0);
   }
 
   function matches(a, b) {
