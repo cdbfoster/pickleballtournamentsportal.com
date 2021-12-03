@@ -18,12 +18,12 @@ mod result;
 
 #[derive(Default)]
 pub struct ScrapeCache {
-    pub pages: PageCache,
-    pub tournament_list: Cache<TournamentList>,
-    pub tournament_event_list: CacheMap<usize, EventGroupList>,
-    pub tournament_info: CacheMap<usize, Info>,
-    pub tournament_player_list: CacheMap<usize, PlayerList>,
-    pub tournament_schedule: CacheMap<usize, Schedule>,
+    pages: PageCache,
+    tournament_list: Cache<TournamentList>,
+    tournament_event_list: CacheMap<usize, EventGroupList>,
+    tournament_info: CacheMap<usize, Info>,
+    tournament_player_list: CacheMap<usize, PlayerList>,
+    tournament_schedule: CacheMap<usize, Schedule>,
 }
 
 const TOURNAMENT_LIST_REFRESH: u64 = 3 * 60 * 60;
