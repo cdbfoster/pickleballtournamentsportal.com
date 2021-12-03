@@ -82,6 +82,7 @@ class Schedule {
   oncreate(vnode) {
     vnode.dom.querySelector(".filter").addEventListener("input", event => {
       this.filter = event.target.value;
+      event.target.scrollIntoView(true);
       m.redraw();
     });
   }
@@ -151,6 +152,7 @@ class Events {
   oncreate(vnode) {
     vnode.dom.querySelector(".filter").addEventListener("input", event => {
       this.filter = event.target.value;
+      event.target.scrollIntoView(true);
       m.redraw();
     });
   }
@@ -193,6 +195,7 @@ class Players {
   oncreate(vnode) {
     vnode.dom.querySelector(".filter").addEventListener("input", event => {
       this.filter = event.target.value;
+      event.target.scrollIntoView(true);
       m.redraw();
     });
   }
