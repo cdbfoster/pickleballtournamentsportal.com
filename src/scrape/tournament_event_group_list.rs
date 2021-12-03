@@ -143,9 +143,11 @@ pub async fn tournament_event_group_list<'a>(
                                                         url
                                                     ))
                                                 } else if url.contains("show.pl") {
+                                                    let bracket_filename_captures = PATTERNS.bracket_filename.captures(&url).unwrap();
                                                     EventContent::BracketUrl(format!(
-                                                        "https://www.pickleballtournaments.com/{}",
-                                                        url
+                                                        "https://www.pickleballtournaments.com/Tournaments/{}/{}",
+                                                        bracket_filename_captures[1].replace("%2F", "/"),
+                                                        &bracket_filename_captures[2],
                                                     ))
                                                 } else {
                                                     panic!("Unknown event url: {:?}", url)
@@ -264,10 +266,12 @@ static SELECTORS: Lazy<Selectors> = Lazy::new(|| Selectors {
 
 struct Patterns {
     url: Regex,
+    bracket_filename: Regex,
 }
 
 static PATTERNS: Lazy<Patterns> = Lazy::new(|| Patterns {
     url: Regex::new(r#"href="([^"]+)""#).unwrap(),
+    bracket_filename: Regex::new("&amp;dir=([^&]+)&amp;filename=(.+)$").unwrap(),
 });
 
 /// Finds the common prefix in a list of names
