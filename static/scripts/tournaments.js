@@ -148,7 +148,7 @@ class Main {
     });
 
     vnode.dom.addEventListener("filter", (event) => {
-      document.querySelector("main").scrollIntoView(true);
+      window.innerWidth <= 800 && document.querySelector("main").scrollIntoView(true);
 
       // Reset view limits to initial values
       this.viewLimits = {
