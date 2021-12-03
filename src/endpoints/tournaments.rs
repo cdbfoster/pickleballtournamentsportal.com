@@ -25,7 +25,7 @@ pub enum TournamentListPayload {
 }
 
 #[get("/tournaments/fetch")]
-pub async fn fetch(
+pub async fn data(
     client: Client<'_>,
     cache: &State<ScrapeCache>,
 ) -> ScrapeResult<Json<TournamentListPayload>> {

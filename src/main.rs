@@ -35,7 +35,7 @@ fn not_found_page() -> Template {
 fn rocket() -> _ {
     rocket::build()
         .mount("/", routes![landing_page, not_found_page])
-        .mount("/", routes![tournaments::fetch, tournaments::search])
+        .mount("/", routes![tournaments::data, tournaments::search])
         .mount("/", routes![tournament::data, tournament::page])
         .mount("/", FileServer::from(relative!("static")))
         .register("/", catchers![not_found])
