@@ -36,15 +36,17 @@ pub struct Event {
 
 #[derive(Clone)]
 pub enum EventContent {
-    ListUrl(String),
     BracketUrl(String),
+    GroupListUrl(String),
+    ListUrl(String),
 }
 
 impl EventContent {
     pub fn url(&self) -> &str {
         match self {
-            EventContent::ListUrl(url) => &url,
             EventContent::BracketUrl(url) => &url,
+            EventContent::GroupListUrl(url) => &url,
+            EventContent::ListUrl(url) => &url,
         }
     }
 }
@@ -236,7 +238,7 @@ pub async fn tournament_event_group_list<'a>(
                                             .filter(|s| !s.trim().is_empty())
                                             .map(|s| Event {
                                                 name: s,
-                                                content: EventContent::ListUrl(url.clone()),
+                                                content: EventContent::GroupListUrl(url.clone()),
                                             })
                                             .collect(),
                                     }
