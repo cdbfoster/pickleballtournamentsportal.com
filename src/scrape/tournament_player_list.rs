@@ -83,7 +83,7 @@ pub async fn tournament_player_list<'a>(
 
                                 Player {
                                     id,
-                                    first_name: name_matches[2].to_owned(),
+                                    first_name: name_matches[2].trim().to_owned(),
                                     last_name: name_matches[1].to_owned(),
                                     nick_name: name_matches.get(3).map(|n| n.as_str().to_owned()),
                                     from: from_element.inner_html(),
