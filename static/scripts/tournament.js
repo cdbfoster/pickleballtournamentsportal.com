@@ -50,20 +50,23 @@ class Main {
       m("section#data", [
         tournamentData.schedule.length != 0 ? [
           m(Accordion, {
+            id: "schedule",
             title: m("h3", "Schedule"),
-            content: m(Schedule, { id: "schedule" }),
+            content: m(Schedule),
           }),
         ] : [],
         tournamentData.eventGroups.some(g => g.events.length != 0) ? [
           m(Accordion, {
+            id: "events",
             title: m("h3", "Events"),
-            content: m(Events, { id: "events" }),
+            content: m(Events),
           }),
         ] : [],
         tournamentData.players.length != 0 ? [
           m(Accordion, {
+            id: "players",
             title: m("h3", "Players"),
-            content: m(Players, { id: "players" }),
+            content: m(Players),
           }),
         ] : [],
       ]),

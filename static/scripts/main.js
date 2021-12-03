@@ -10,6 +10,7 @@ class Accordion {
     return m(
       "div.accordion",
       {
+        id: vnode.attrs.id,
         class: (vnode.attrs.class ? vnode.attrs.class + " " : "") + (this.expanded ? "expanded" : "collapsed"),
       },
       [
