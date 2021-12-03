@@ -8,7 +8,7 @@ use scraper::{ElementRef, Html, Selector};
 
 use crate::client::Client;
 use crate::scrape::{
-    ScrapeCache, ScrapeResult, TOURNAMENT_EVENT_BRACKET_LIST_REFRESH,
+    ScrapeCache, ScrapeResult, TOURNAMENT_EVENT_LIST_REFRESH,
     TOURNAMENT_EVENT_BRACKET_PAGE_REFRESH, TOURNAMENT_EVENT_PLAYER_LIST_REFRESH,
     TOURNAMENT_PAGE_REFRESH,
 };
@@ -70,7 +70,7 @@ pub async fn tournament_event_group_list<'a>(
         .try_push_guard_async(|event_list_cache| async move {
             event_list_cache
                 .retrieve_or_update(
-                    Duration::from_secs(TOURNAMENT_EVENT_BRACKET_LIST_REFRESH),
+                    Duration::from_secs(TOURNAMENT_EVENT_LIST_REFRESH),
                     || async {
                         let tournament_page_url = format!(
                             "https://www.pickleballtournaments.com/tournamentinfo.pl?tid={}",
