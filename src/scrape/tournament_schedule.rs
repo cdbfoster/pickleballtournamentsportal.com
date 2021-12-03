@@ -130,7 +130,7 @@ pub async fn tournament_schedule<'a>(
                                                         event_groups
                                                             .iter()
                                                             .flat_map(|g| g.events.iter())
-                                                            .find(|e| e.content.url() == url)
+                                                            .find(|e| e.url.as_str() == url)
                                                             .map(|e| e.name.clone())
                                                     })
                                                 }),

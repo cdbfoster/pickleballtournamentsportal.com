@@ -73,7 +73,7 @@ where
         }
     }
 
-    pub async fn get<'a>(&'a self, key: K) -> GuardStack<'a, CacheMapGuard<'a, K, V>, Cache<V>>
+    pub async fn get(&self, key: K) -> GuardStack<'_, CacheMapGuard<'_, K, V>, Cache<V>>
     where
         K: Clone,
     {
@@ -106,13 +106,13 @@ impl PageCache {
         Self(CacheMap::new())
     }
 
-    pub async fn retrieve_or_update<'a, F, U>(
-        &'a self,
+    pub async fn retrieve_or_update<F, U>(
+        &self,
         interval: Duration,
         url: U,
         fetch_url: impl Fn(Url) -> F,
         error: &str,
-    ) -> ScrapeResult<PageCacheGuard<'a>>
+    ) -> ScrapeResult<PageCacheGuard<'_>>
     where
         F: Future<Output = Result<Response, Error>>,
         U: IntoUrl,

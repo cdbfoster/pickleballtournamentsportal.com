@@ -56,7 +56,7 @@ pub async fn tournament_info<'a>(
                                 .captures(&html)
                                 .map(|c| (c[1].to_owned(), l.inner_html()))
                         })
-                        .filter(|(l, _)| l.starts_with("#"))
+                        .filter(|(l, _)| l.starts_with('#'))
                         .filter(|(l, _)| {
                             [
                                 "#menuSchedule",

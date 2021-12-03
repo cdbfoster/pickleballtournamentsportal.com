@@ -168,7 +168,7 @@ impl<'r> RequestBuilder<'r> {
         let response = self.request.send().await;
 
         if let Ok(ref response) = response {
-            if let Some(ref outgoing_cookies) = self.client.outgoing_cookies {
+            if let Some(outgoing_cookies) = self.client.outgoing_cookies {
                 // Copy any new cookies into the outgoing jar
                 for header in response.headers().get_all("set-cookie").iter() {
                     outgoing_cookies

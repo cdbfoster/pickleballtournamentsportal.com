@@ -8,8 +8,8 @@ use scraper::{ElementRef, Html, Selector};
 
 use crate::client::Client;
 use crate::scrape::{
-    ScrapeCache, ScrapeResult, TOURNAMENT_EVENT_LIST_REFRESH,
-    TOURNAMENT_EVENT_BRACKET_PAGE_REFRESH, TOURNAMENT_EVENT_PLAYER_LIST_PAGES_REFRESH,
+    ScrapeCache, ScrapeResult, TOURNAMENT_EVENT_BRACKET_PAGE_REFRESH,
+    TOURNAMENT_EVENT_LIST_REFRESH, TOURNAMENT_EVENT_PLAYER_LIST_PAGES_REFRESH,
     TOURNAMENT_PAGE_REFRESH,
 };
 use crate::util::cache::{CacheGuard, CacheMapGuard};
@@ -31,22 +31,22 @@ pub struct EventGroup {
 pub struct Event {
     pub name: String,
     #[serde(skip_serializing)]
-    pub content: EventContent,
+    pub url: EventUrl,
 }
 
 #[derive(Clone)]
-pub enum EventContent {
-    BracketUrl(String),
-    GroupListUrl(String),
-    ListUrl(String),
+pub enum EventUrl {
+    Bracket(String),
+    GroupList(String),
+    List(String),
 }
 
-impl EventContent {
-    pub fn url(&self) -> &str {
+impl EventUrl {
+    pub fn as_str(&self) -> &str {
         match self {
-            EventContent::BracketUrl(url) => &url,
-            EventContent::GroupListUrl(url) => &url,
-            EventContent::ListUrl(url) => &url,
+            EventUrl::Bracket(url) => url,
+            EventUrl::GroupList(url) => url,
+            EventUrl::List(url) => url,
         }
     }
 }
@@ -115,7 +115,7 @@ pub async fn tournament_event_group_list<'a>(
                                     let mut url_to_event_name = HashMap::new();
 
                                     n.next_siblings()
-                                        .filter_map(|s| ElementRef::wrap(s))
+                                        .filter_map(ElementRef::wrap)
                                         .skip(1)
                                         .take_while(|e| &e.value().name.local != "h2")
                                         .for_each(|e| {
@@ -129,7 +129,7 @@ pub async fn tournament_event_group_list<'a>(
 
                                             url_to_event_name
                                                 .entry(event_url)
-                                                .or_insert(Vec::new())
+                                                .or_insert_with(Vec::new)
                                                 .push(event_name);
                                         });
 
@@ -139,14 +139,14 @@ pub async fn tournament_event_group_list<'a>(
                                             .into_iter()
                                             .map(|(url, names)| Event {
                                                 name: common_name(&names),
-                                                content: if url.contains("rptbrackets.pl") {
-                                                    EventContent::ListUrl(format!(
+                                                url: if url.contains("rptbrackets.pl") {
+                                                    EventUrl::List(format!(
                                                         "https://www.pickleballtournaments.com/{}",
                                                         url
                                                     ))
                                                 } else if url.contains("show.pl") {
                                                     let bracket_filename_captures = PATTERNS.bracket_filename.captures(&url).unwrap();
-                                                    EventContent::BracketUrl(format!(
+                                                    EventUrl::Bracket(format!(
                                                         "https://www.pickleballtournaments.com/Tournaments/{}/{}",
                                                         bracket_filename_captures[1].replace("%2F", "/"),
                                                         &bracket_filename_captures[2],
@@ -238,7 +238,7 @@ pub async fn tournament_event_group_list<'a>(
                                             .filter(|s| !s.trim().is_empty())
                                             .map(|s| Event {
                                                 name: s,
-                                                content: EventContent::GroupListUrl(url.clone()),
+                                                url: EventUrl::GroupList(url.clone()),
                                             })
                                             .collect(),
                                     }
@@ -280,7 +280,7 @@ static PATTERNS: Lazy<Patterns> = Lazy::new(|| Patterns {
 fn common_name(names: &[String]) -> String {
     let name_parts = names
         .iter()
-        .map(|n| n.trim_end().split(" ").collect::<Vec<_>>())
+        .map(|n| n.trim_end().split(' ').collect::<Vec<_>>())
         .collect::<Vec<_>>();
     let minimum_parts = name_parts.iter().map(|n| n.len()).min().unwrap();
 

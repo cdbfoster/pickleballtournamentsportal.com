@@ -48,7 +48,7 @@ pub async fn data(
         .await?
         .iter()
         .find(|t| t.id == id)
-        .map(|l| l.clone())
+        .cloned()
         .ok_or_else(|| ScrapeError::from_str("tournament not found"))?;
 
     let player_list = tournament_player_list(id, &client, cache).await?;
