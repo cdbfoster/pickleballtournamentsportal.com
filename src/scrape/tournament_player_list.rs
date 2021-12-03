@@ -118,3 +118,24 @@ static PATTERNS: Lazy<Patterns> = Lazy::new(|| Patterns {
     player_id: Regex::new(r"&amp;id=(\d+)").unwrap(),
     player_name: Regex::new(r"<span>([^<]+)</span>, ([^(<]+)(?:\(([^)]+)\))?").unwrap(),
 });
+
+pub(super) struct FindPlayerQuery {
+    /// This could contain either a first name or a nickname, since we won't always know.
+    pub(super) first_name: Option<String>,
+    /// If the caller fills this out, it is guaranteed to be a nickname.
+    pub(super) nick_name: Option<String>,
+    /// PickleballTournaments.com always specifies at least the last name.
+    pub(super) last_name: String,
+}
+
+pub(super) fn find_player(query: FindPlayerQuery, players: &[Player]) -> Option<&Player> {
+    players
+        .iter()
+        .filter(|p| query.last_name == p.last_name)
+        .filter(|p| query.nick_name.is_none() || query.nick_name == p.nick_name)
+        .find(|p| {
+            query.first_name.is_none()
+                || query.first_name.as_ref() == Some(&p.first_name)
+                || query.first_name == p.nick_name
+        })
+}

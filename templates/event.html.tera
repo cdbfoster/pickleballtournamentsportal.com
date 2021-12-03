@@ -1,0 +1,14 @@
+{% extends "base" %}
+
+{% block head %}
+{{ super() }}
+    <script>
+      var tournamentId = {{ id }};
+      var eventName = "{{ event | urlencode_strict | safe }}";
+    </script>
+{%- endblock head %}
+
+{% block body %}
+    <main id="event"></main>
+    <script src="/scripts/event.js"></script>
+{%- endblock body %}
