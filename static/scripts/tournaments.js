@@ -64,6 +64,7 @@ const abbreviations = {
 
 var tournamentListings = null;
 var captcha = null;
+var error = false;
 
 fetch("/tournaments/fetch")
   .then(response => response.json())
@@ -77,7 +78,11 @@ fetch("/tournaments/fetch")
     }
     m.redraw();
   })
-  .catch(error => console.error(error));
+  .catch(e => {
+    console.error(e);
+    error = true;
+    m.redraw();
+  });
 
 class Main {
   constructor() {
@@ -307,6 +312,6 @@ let main = document.querySelector("main");
 
 m.mount(main, {
   view: function () {
-    return captcha !== null ? m(Captcha) : (tournamentListings !== null ? m(Main) : m(Loading));
+    return error ? m(Error) : (captcha !== null ? m(Captcha) : (tournamentListings !== null ? m(Main) : m(Loading)));
   },
 });

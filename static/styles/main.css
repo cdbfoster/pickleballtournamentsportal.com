@@ -168,6 +168,43 @@ body {
   }
 }
 
+.error, .loading {
+  align-self: stretch;
+  display: grid;
+  grid-area: 1 / 1 / -1 / -1;
+  grid-gap: 1em;
+  grid-template-rows: 1fr 2fr;
+  justify-items: center;
+}
+
+.error > *, .loading > * {
+  margin: 0;
+}
+
+.error p:first-of-type, .loading p {
+  align-self: end;
+  font-family: "Fjalla One", sans-serif;
+  font-size: 2em;
+  text-align: center;
+}
+
+.error p:last-of-type {
+  max-width: 28em;
+  text-align: center;
+}
+
+@media (max-width: 1000px) {
+  .captcha, .error, .loading {
+    flex-grow: 1;
+  }
+}
+
+@media (max-width: 400px) {
+  .error p:first-of-type, .loading p {
+    font-size: 1.5em;
+  }
+}
+
 .filter {
   border: 1px solid #ced4d9;
   border-radius: 4px;
@@ -253,26 +290,6 @@ main {
   }
 }
 
-.loading {
-  align-self: stretch;
-  display: grid;
-  font-family: "Fjalla One", sans-serif;
-  font-size: 2em;
-  grid-area: 1 / 1 / -1 / -1;
-  grid-gap: 1em;
-  grid-template-rows: 1fr 2fr;
-  justify-items: center;
-}
-
-.loading > * {
-  margin: 0;
-}
-
-.loading > p {
-  align-self: end;
-  text-align: center;
-}
-
 .loading-indicator {
   align-self: start;
   display: flex;
@@ -295,12 +312,6 @@ main {
 
 .loading-indicator-pip:nth-of-type(3) {
   animation-delay: 0.75s;
-}
-
-@media (max-width: 400px) {
-  .loading {
-    font-size: 1.5em;
-  }
 }
 
 @keyframes pulse {
@@ -561,10 +572,6 @@ main {
     order: 1;
     padding: 1em 2em 0;
     width: 60em;
-  }
-
-  #tournament .captcha, #tournament .loading {
-    flex-grow: 1;
   }
 }
 
@@ -850,10 +857,6 @@ main {
 
   #tournaments #filter {
     position: unset;
-  }
-
-  #tournaments .captcha, #tournaments .loading {
-    flex-grow: 1;
   }
 }
 

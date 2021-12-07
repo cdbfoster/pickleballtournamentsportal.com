@@ -66,6 +66,19 @@ class Captcha {
   }
 }
 
+class Error {
+  view() {
+    return m("div.error", [
+      m("p", "Error fetching data"),
+      m("p", [
+        "Something went wrong while fetching data from ",
+        m("a", { href: "https://www.pickleballtournaments.com" }, "PickleballTournaments.com"),
+        ". Please try again later.",
+      ]),
+    ]);
+  }
+}
+
 class LazyImage {
   constructor(vnode) {
     this.loaded = false;

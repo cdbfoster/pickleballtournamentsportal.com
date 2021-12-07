@@ -1,5 +1,6 @@
 var eventData = null;
 var captcha = null;
+var error = false;
 
 fetch(`/tournament/${tournamentId}/event/${eventName}/data`)
   .then(response => response.json())
@@ -18,4 +19,8 @@ fetch(`/tournament/${tournamentId}/event/${eventName}/data`)
     }
     m.redraw();
   })
-  .catch(error => console.error(error));
+  .catch(e => {
+    console.error(e);
+    error = true;
+    m.redraw();
+  });

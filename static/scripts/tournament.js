@@ -1,5 +1,6 @@
 var tournamentData = null;
 var captcha = null;
+var error = false;
 
 fetch(`/tournament/${tournamentId}/data`)
   .then(response => response.json())
@@ -18,7 +19,11 @@ fetch(`/tournament/${tournamentId}/data`)
     }
     m.redraw();
   })
-  .catch(error => console.error(error));
+  .catch(e => {
+    console.error(e);
+    error = true;
+    m.redraw();
+  });
 
 class Main {
   view(vnode) {
@@ -244,6 +249,6 @@ let main = document.querySelector("main");
 
 m.mount(main, {
   view: function () {
-    return captcha !== null ? m(Captcha) : (tournamentData !== null ? m(Main) : m(Loading));
+    return error ? m(Error) : (captcha !== null ? m(Captcha) : (tournamentData !== null ? m(Main) : m(Loading)));
   },
 });
