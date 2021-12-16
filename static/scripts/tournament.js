@@ -26,7 +26,7 @@ fetch(`/tournament/${tournamentId}/data`)
   });
 
 class Main {
-  view(vnode) {
+  view() {
 
     let listing = tournamentData.listing;
     let datesString = listing.startDate != listing.endDate ?
