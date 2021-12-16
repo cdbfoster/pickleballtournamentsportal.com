@@ -206,7 +206,7 @@ class Players {
   }
 
   view(vnode) {
-    let players = filterArray(this.filter, tournamentData.players, p => `${p.firstName} ${p.nickName || ""} ${p.lastName}`);
+    let players = filterArray(this.filter, tournamentData.players, p => `${p.firstName} ${p.nickNames.join(" ")} ${p.lastName}`);
 
     return m("div",
       {
@@ -232,7 +232,7 @@ class Players {
                   m(
                     "a.player-name",
                     { href: `/tournament/${tournamentId}/player/${p.id}` },
-                    m.trust(`${p.lastName}, ${p.firstName}${p.nickName ? ' "' + p.nickName + '"' : ""}`),
+                    m.trust(`${p.lastName}, ${p.firstName}${p.nickNames.length > 0 ? ' "' + p.nickNames.join('" "') + '"' : ""}`),
                   ),
                   m("p.player-from", m.trust(p.from)),
                 ],

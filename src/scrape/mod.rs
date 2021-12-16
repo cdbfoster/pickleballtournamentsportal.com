@@ -1,6 +1,6 @@
 use crate::util::cache::{Cache, CacheMap, PageCache};
 
-use self::event::TeamList;
+use self::event::{Bracket, TeamList};
 use self::tournament_event_group_list::EventGroupList;
 use self::tournament_info::Info;
 use self::tournament_list::TournamentList;
@@ -20,6 +20,7 @@ mod result;
 
 #[derive(Default)]
 pub struct ScrapeCache {
+    event_bracket: CacheMap<(usize, String), Bracket>,
     event_team_list: CacheMap<(usize, String), TeamList>,
     pages: PageCache,
     tournament_list: Cache<TournamentList>,
