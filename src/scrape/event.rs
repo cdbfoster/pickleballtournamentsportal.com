@@ -384,14 +384,17 @@ async fn scrape_team_list_bracket<'a>(
                 t.select(&SELECTORS.row)
                     .skip(1)
                     .filter_map(|r| {
-                        r.select(&SELECTORS.cell).take(2).find_map(|t| {
-                            let value = t.inner_html();
-                            if !value.is_empty() && value != "(bye)" {
-                                Some(value)
-                            } else {
-                                None
-                            }
-                        })
+                        let mut c = r.select(&SELECTORS.cell).take(2);
+                        c.next()
+                            .map(|t| t.inner_html())
+                            .filter(|v| !v.is_empty())
+                            .and_then(|v| {
+                                if v == "(bye)" {
+                                    c.next().map(|t| t.inner_html()).filter(|v| !v.is_empty())
+                                } else {
+                                    Some(v)
+                                }
+                            })
                     })
                     .map(|t| {
                         PATTERNS
