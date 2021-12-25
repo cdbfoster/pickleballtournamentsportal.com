@@ -23,7 +23,7 @@ use crate::util::guard_stack::GuardStack;
 #[serde(crate = "rocket::serde")]
 #[serde(rename_all = "camelCase")]
 pub enum Bracket {
-    DoubleElim(Vec<BracketMatch>),
+    DoubleElim(Vec<(Option<String>, BracketMatch)>),
     RoundRobin(Vec<Vec<BracketMatch>>),
 }
 
@@ -109,6 +109,12 @@ pub async fn event_bracket<'a>(
                                 .map(BracketPosition)
                                 .map(BracketNode::crawl_from)
                                 .map(|n| BracketMatch::from_node(&n, &teams))
+                                .zip(
+                                    page.select(&SELECTORS.bracket_name)
+                                        .map(|e| Some(e.inner_html()))
+                                        .chain(std::iter::repeat(None)),
+                                )
+                                .map(|(b, n)| (n, b))
                                 .collect(),
                         ))
                     }
@@ -417,6 +423,7 @@ struct Selectors {
     rpt_player: Selector,
     table: Selector,
     bracket_table: Selector,
+    bracket_name: Selector,
     row: Selector,
     cell: Selector,
     match_label: Selector,
@@ -429,6 +436,7 @@ static SELECTORS: Lazy<Selectors> = Lazy::new(|| Selectors {
     rpt_player: Selector::parse(".rptbrackets > .tab-content > ul > li").unwrap(),
     table: Selector::parse("table").unwrap(),
     bracket_table: Selector::parse("hr + table").unwrap(),
+    bracket_name: Selector::parse("h4").unwrap(),
     row: Selector::parse("tr").unwrap(),
     cell: Selector::parse("td").unwrap(),
     match_label: Selector::parse("td a").unwrap(),

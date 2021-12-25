@@ -241,17 +241,24 @@ class DoubleElimBracket {
   }
 
   view() {
-    let bracket = this.filter.length > 0 ? filterBracket(eventData.bracket.doubleElim, this.filter) : eventData.bracket.doubleElim;
+    let bracket = this.filter.length > 0 ?
+      eventData.bracket.doubleElim.map(b => [b[0], filterBracket([b[1]], this.filter)]) :
+      eventData.bracket.doubleElim.map(b => [b[0], [b[1]]]);
 
     return m(
       "div#bracket",
-      bracket.map(b => m(BracketMatch, {
-        key: "match" + b.id,
-        match: b,
-        selected: nodeIsSelected({ match: b }, this.selected, this.filter),
-        selectedNode: this.selected,
-        filter: this.filter,
-      })),
+      bracket
+        .filter(b => b[1].length > 0)
+        .map(b => [
+          ...(b[0] !== null ? [m("h4", { key: b[0] }, b[0])] : []),
+          ...b[1].map(c => m(BracketMatch, {
+            key: "match" + c.id,
+            match: c,
+            selected: nodeIsSelected({ match: c }, this.selected, this.filter),
+            selectedNode: this.selected,
+            filter: this.filter,
+          })),
+        ]),
     );
   }
 }

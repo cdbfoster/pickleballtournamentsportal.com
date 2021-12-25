@@ -763,6 +763,14 @@ main {
   justify-content: space-evenly;
 }
 
+#event #bracket > h4 {
+  border-bottom: 1px solid #404040;
+  font-size: 1.5em;
+  font-weight: 400;
+  margin: 0 1em 1em;
+  padding-bottom: 0.25em;
+}
+
 #event #bracket > .match {
   margin-left: auto;
   margin-right: auto;
