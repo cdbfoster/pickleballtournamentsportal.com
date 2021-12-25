@@ -155,23 +155,37 @@ class RegistrationStatus {
   }
 }
 
+function sanitizeString(string) {
+  let stripSymbols = /['"]/g;
+  let splitSymbols = /[!@#$%^&*()\[\]{}\/?\\;:|<>_=-]/g;
+  return string.toLowerCase().replaceAll(stripSymbols, "").replaceAll(splitSymbols, " ").split(/\s+/).filter(s => s.length > 0);
+}
+
+function arrayMatches(a, b) {
+  return a.every(x => b.some(y => y.startsWith(x)));
+}
+
 function filterArray(filter, array, key) {
-  function sanitize(string) {
-    let stripSymbols = /['"]/g;
-    let splitSymbols = /[!@#$%^&*()\[\]{}\/?\\;:|<>_=-]/g;
-    return string.toLowerCase().replaceAll(stripSymbols, "").replaceAll(splitSymbols, " ").split(/\s+/).filter(s => s.length > 0);
-  }
-
-  function matches(a, b) {
-    return a.every(x => b.some(y => y.startsWith(x)));
-  }
-
-  filter = sanitize(filter);
+  filter = sanitizeString(filter);
   if (filter.length == 0) {
     return array;
   }
 
-  return array.filter(o => matches(filter, sanitize(key(o))));
+  return array.filter(o => arrayMatches(filter, sanitizeString(key(o))));
+}
+
+function matchesFilter(string, filter) {
+  filter = sanitizeString(filter);
+  if (filter.length == 0) {
+    return false;
+  }
+
+  return arrayMatches(filter, sanitizeString(string));
+}
+
+function sortArray(array, key) {
+  let keys = array.map(x => [key(x), x]);
+  return keys.sort().map(k => k[1]);
 }
 
 function printDate(isoDate, pretty = false) {

@@ -7,8 +7,9 @@ use rocket_dyn_templates::Template;
 
 use crate::client::Client;
 use crate::scrape::event::{event_bracket, event_team_list, Bracket, TeamList};
-use crate::scrape::tournament_event_group_list::tournament_event_group_list;
+use crate::scrape::tournament_event_group_list::{tournament_event_group_list, EventUrl};
 use crate::scrape::tournament_list::{tournament_list, TournamentListing};
+use crate::scrape::tournament_schedule::{tournament_schedule, ScheduleItem};
 use crate::scrape::{ScrapeCache, ScrapeError, ScrapeResult};
 
 #[get("/tournament/<id>/event/<event>")]
@@ -33,8 +34,9 @@ pub enum EventDataPayload {
 #[serde(rename_all = "camelCase")]
 pub struct EventData {
     name: String,
+    schedule_item: Option<ScheduleItem>,
     teams: TeamList,
-    bracket: Bracket,
+    bracket: Option<Bracket>,
     tournament: TournamentListing,
 }
 
@@ -60,12 +62,22 @@ pub async fn data(
         .cloned()
         .ok_or_else(|| ScrapeError::from_str("event not found"))?;
 
+    let schedule_item = tournament_schedule(id, &client, cache)
+        .await?
+        .iter()
+        .find(|e| e.event == event.name)
+        .cloned();
+
     let teams = event_team_list(id, &event, &client, cache).await?.clone();
 
-    let bracket = event_bracket(id, &event, &client, cache).await?.clone();
+    let bracket = match event.url {
+        EventUrl::Bracket(_) => Some(event_bracket(id, &event, &client, cache).await?.clone()),
+        _ => None,
+    };
 
     Ok(Json(EventDataPayload::EventData(EventData {
         name: event.name.to_owned(),
+        schedule_item,
         teams,
         bracket,
         tournament: listing,

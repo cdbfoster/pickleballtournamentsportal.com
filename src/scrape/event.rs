@@ -704,7 +704,7 @@ impl<'a> BracketNode<'a> {
 #[serde(crate = "rocket::serde")]
 #[serde(rename_all = "camelCase")]
 pub enum BracketMatchChild {
-    Winner(BracketMatch),
+    Match(BracketMatch),
     Seed(Vec<Player>),
 }
 
@@ -788,7 +788,7 @@ impl BracketMatch {
                             .unwrap_or_default(),
                     )
                 } else {
-                    BracketMatchChild::Winner(BracketMatch::from_node(c, teams))
+                    BracketMatchChild::Match(BracketMatch::from_node(c, teams))
                 }
             })
             .collect();
