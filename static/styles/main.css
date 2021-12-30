@@ -782,7 +782,7 @@ main {
   margin-bottom: 2em;
 }
 
-#event .match {
+#event #bracket .match {
   align-items: center;
   display: flex;
   flex-flow: row-reverse nowrap;
@@ -863,14 +863,14 @@ main {
   font-weight: 700;
 }
 
-#event .results .scores {
+#event .scores {
   display: flex;
   font-size: 0.8em;
   gap: 0.25em;
   grid-area: scores;
 }
 
-#event .results .scores li:not(:last-of-type)::after {
+#event .scores li:not(:last-of-type)::after {
   content: ",";
 }
 
@@ -922,6 +922,131 @@ main {
   border-bottom: 2px solid #404040;
   border-bottom-right-radius: 5px;
   top: -0.5em;
+}
+
+#event #round-robin .rounds {
+  display: flex;
+  flex-flow: row wrap;
+}
+
+#event #round-robin .round {
+  padding: 1em;
+}
+
+#event #round-robin ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#event #round-robin p {
+  margin: 0;
+}
+
+#event #round-robin .round .title {
+  margin: 0;
+}
+
+#event #round-robin .match {
+  display: grid;
+  grid-template-areas:
+    "team1 vs team2"
+    "team1 scores team2";
+  grid-template-columns: 10em 6em 10em;
+  grid-template-rows: auto 1fr;
+}
+
+#event #round-robin .matches > li {
+  padding: 0.5em 0.25em;
+}
+
+#event #round-robin .matches > li:not(:last-of-type) {
+  border-bottom: 1px solid #D0D0D0;
+}
+
+#event #round-robin .match .team {
+  align-self: center;
+  display: flex;
+  flex-flow: column nowrap;
+  padding: 0.5em;
+  position: relative;
+}
+
+#event #round-robin .winner {
+  background-color: #BFDFFF;
+  border-radius: 5px;
+  box-shadow: 2px 2px 3px -1px rgba(0, 0, 0, 0.6);
+}
+
+#event #round-robin .winner::before {
+  color: #0080DD;
+  content: "Winner";
+  font-size: 0.5em;
+  position: absolute;
+  bottom: 0;
+}
+
+#event #round-robin .loser {
+  background-color: #E0E0E0;
+  border-radius: 5px;
+  box-shadow: 2px 2px 3px -1px rgba(0, 0, 0, 0.6);
+}
+
+#event #round-robin .loser::before {
+  color: #606060;
+  content: "Loser";
+  font-size: 0.5em;
+  position: absolute;
+  bottom: 0;
+}
+
+#event #round-robin .team:first-of-type {
+  align-items: flex-end;
+  grid-area: team1;
+  justify-self: end;
+}
+
+#event #round-robin .team:first-of-type::before {
+  left: 1em;
+}
+
+#event #round-robin .team:nth-of-type(2) {
+  align-items: flex-start;
+  grid-area: team2;
+  justify-self: start;
+}
+
+#event #round-robin .team:nth-of-type(2)::before {
+  right: 1em;
+}
+
+#event #round-robin .match .vs {
+  grid-area: vs;
+  justify-self: center;
+  margin-top: 0.5em;
+}
+
+#event #round-robin .scores {
+  align-self: start;
+  flex-flow: row wrap;
+  grid-area: scores;
+  justify-content: center;
+  justify-self: center;
+}
+
+#event #round-robin .bye {
+  align-items: center;
+  border-top: 1px solid #D0D0D0;
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 2em;
+  justify-content: center;
+  padding: 0.5em 0;
+}
+
+#event #round-robin .bye > p {
+  font-size: 0.9em;
+  font-weight: 700;
 }
 
 /* Tournaments ============================================================= */

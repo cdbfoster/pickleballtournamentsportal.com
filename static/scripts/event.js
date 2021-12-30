@@ -77,7 +77,7 @@ class Team {
   view(vnode) {
     let team = vnode.attrs.team;
 
-    return m("ul.team", team.map(p => m("li.player", m(PlayerName, { player: p, link: vnode.attrs.link }))));
+    return m("ul.team", { class: vnode.attrs.class }, team.map(p => m("li.player", m(PlayerName, { player: p, link: vnode.attrs.link }))));
   }
 }
 
@@ -415,6 +415,53 @@ class BracketSeed {
     return m("div.seed", {
       class: selected ? "selected" : (selectedNode || filter.length != "" ? "unselected" : undefined),
     }, m(Team, { team: seed, link: false }));
+  }
+}
+
+class RoundRobinBracket {
+  view() {
+    return m("div#round-robin", [
+      m("div.rounds", eventData.bracket.roundRobin.map((r, i) => m(RoundRobinRound, { key: i, title: `Round ${i + 1}`, round: r }))),
+    ]);
+  }
+}
+
+class RoundRobinRound {
+  view(vnode) {
+    let title = vnode.attrs.title;
+    let round = vnode.attrs.round;
+    let bye = eventData.teams
+      .find(t => round
+        .map(n => n.children
+          .map(c => c.seed.map(p => p.id)))
+          .flat(2)
+          .every(i => !t.map(p => p.id).includes(i))
+      );
+
+    return m("div.round", [
+      m("h3.title", title),
+      m("ul.matches", round.map((n, i) => m("li", m(RoundRobinMatch, { key: i, match: n })))),
+      bye ? m("div.bye", [
+        m("p", "bye"),
+        m(Team, { team: bye, link: false }),
+      ]) : [],
+    ]);
+  }
+}
+
+class RoundRobinMatch {
+  view(vnode) {
+    let match = vnode.attrs.match;
+
+    return m("div.match", [
+      match.children.map(c => m(Team, {
+        class: match.winner.length > 0 ? (c.seed.every(p => match.winner.map(q => q.id).includes(p.id)) ? "winner" : "loser") : undefined,
+        team: c.seed,
+        link: false,
+      })),
+      m("p.vs", "vs"),
+      m("ul.scores", match.scores.map(s => m("li", s.join("-")))),
+    ]);
   }
 }
 
