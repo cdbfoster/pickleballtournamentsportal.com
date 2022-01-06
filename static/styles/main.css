@@ -237,6 +237,15 @@ h3 {
   font-size: 1.4em;
 }
 
+.header {
+  background-color: #121E40;
+  color: white;
+}
+
+.header:not(:last-of-type) {
+  border-right: 1px solid white;
+}
+
 header {
   background-color: #121E40;
   padding: 1em;
@@ -485,15 +494,6 @@ main {
   width: 0.25em;
 }
 
-#tournament #data .header {
-  background-color: #121E40;
-  color: white;
-}
-
-#tournament #data .header:not(:last-of-type) {
-  border-right: 1px solid white;
-}
-
 #tournament #schedule .date, #tournament #events .event-group > .name, #tournament #players .player-count {
   font-family: "Nunito", sans-serif;
   margin: 1em 0;
@@ -729,7 +729,7 @@ main {
 }
 
 #event #team-list > ul > li:not(:last-child) {
-  border-bottom: 1px solid #D0D0D0;
+  border-bottom: 1px solid #E4E4E4;
 }
 
 #event #team-list .team {
@@ -924,6 +924,55 @@ main {
   top: -0.5em;
 }
 
+#event #round-robin .standings {
+  border: 1px solid #E4E4E4;
+  border-top: none;
+  display: grid;
+  grid-template-columns: min-content 1fr min-content min-content;
+  margin-bottom: 2em;
+}
+
+#event #round-robin .standings > * {
+  padding: 0.5em 1em;
+}
+
+#event #round-robin .standings .header {
+  font-family: "Nunito", sans-serif;
+  margin: 0;
+}
+
+#event #round-robin .standings .header.ordinal {
+  counter-reset: place;
+}
+
+#event #round-robin .standings .ordinal:not(.header) {
+  align-items: center;
+  counter-increment: place;
+  display: flex;
+}
+
+#event #round-robin .standings .ordinal:not(.header)::before {
+  color: #404040;
+  content: counter(place);
+}
+
+#event #round-robin .standings .wins, #event #round-robin .standings .pd {
+  text-align: center;
+}
+
+#event #round-robin .standings > :not(.header, :nth-last-child(1), :nth-last-child(2), :nth-last-child(3), :nth-last-child(4)) {
+  border-bottom: 1px solid #E4E4E4;
+}
+
+#event #round-robin .standings .filtered {
+  background-color: #E0E0E0;
+  color: #606060;
+}
+
+#event #round-robin .standings .filtered .player-name {
+  color: #606060;
+}
+
 #event #round-robin .rounds {
   display: flex;
   flex-flow: row wrap;
@@ -961,7 +1010,7 @@ main {
 }
 
 #event #round-robin .matches > li:not(:last-of-type) {
-  border-bottom: 1px solid #D0D0D0;
+  border-bottom: 1px solid #E4E4E4;
 }
 
 #event #round-robin .match .team {
@@ -1000,23 +1049,23 @@ main {
   bottom: 0;
 }
 
-#event #round-robin .team:first-of-type {
+#event #round-robin .match .team:first-of-type {
   align-items: flex-end;
   grid-area: team1;
   justify-self: end;
 }
 
-#event #round-robin .team:first-of-type::before {
+#event #round-robin .match .team:first-of-type::before {
   left: 1em;
 }
 
-#event #round-robin .team:nth-of-type(2) {
+#event #round-robin .match .team:nth-of-type(2) {
   align-items: flex-start;
   grid-area: team2;
   justify-self: start;
 }
 
-#event #round-robin .team:nth-of-type(2)::before {
+#event #round-robin .match .team:nth-of-type(2)::before {
   right: 1em;
 }
 
@@ -1036,7 +1085,6 @@ main {
 
 #event #round-robin .bye {
   align-items: center;
-  border-top: 1px solid #D0D0D0;
   display: flex;
   flex-flow: row nowrap;
   gap: 2em;

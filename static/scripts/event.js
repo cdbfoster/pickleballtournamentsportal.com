@@ -91,7 +91,7 @@ class TeamList {
       this.filter = event.target.value;
       window.innerWidth <= 800 && event.target.scrollIntoView(true);
 
-      let bracket = document.querySelector("#bracket");
+      let bracket = document.querySelector("#bracket") || document.querySelector("#round-robin");
       if (bracket !== null) {
         bracket.dispatchEvent(new CustomEvent("filter", {
           detail: this.filter,
@@ -123,18 +123,15 @@ class TeamList {
 }
 
 function nodePlayers(node) {
-  return node !== null ? (node.hasOwnProperty("match") ? node.match.winner : node.seed) : [];
+  return node !== null ? (node.hasOwnProperty("match") ? node.match.winner : (node.hasOwnProperty("seed") ? node.seed : node)) : [];
+}
+
+function teamIdTag(team) {
+  return team !== null ? nodePlayers(team).map(p => p.id).sort().join("-") : null;
 }
 
 function nodePlayersMatch(a, b) {
-  if (a === null || b === null) {
-    return false;
-  }
-
-  let ai = nodePlayers(a).map(p => p.id);
-  let bi = nodePlayers(b).map(p => p.id);
-
-  return ai.length > 0 && ai.length == bi.length && ai.every((ap, i) => ap == bi[i]);
+  return a !== null && b !== null && teamIdTag(a) === teamIdTag(b);
 }
 
 function nodeMatchesFilter(node, filter) {
@@ -419,9 +416,98 @@ class BracketSeed {
 }
 
 class RoundRobinBracket {
+  constructor() {
+    this.filter = "";
+  }
+
+  oncreate(vnode) {
+    vnode.dom.addEventListener("filter", event => {
+      this.filter = event.detail;
+      m.redraw();
+    })
+  }
+
   view() {
     return m("div#round-robin", [
-      m("div.rounds", eventData.bracket.roundRobin.map((r, i) => m(RoundRobinRound, { key: i, title: `Round ${i + 1}`, round: r }))),
+      m(RoundRobinStandings, { filter: this.filter }),
+      m("div.rounds", eventData.bracket.roundRobin.map((r, i) => m(RoundRobinRound, { key: i, title: `Round ${i + 1}`, round: r, filter: this.filter }))),
+    ]);
+  }
+}
+
+class RoundRobinStandings {
+  view(vnode) {
+    let filter = vnode.attrs.filter;
+
+    let teamIds = eventData.teams.map(t => teamIdTag(t));
+    let teamData = {};
+    for (let t of teamIds) {
+      teamData[t] = {
+        wins: 0,
+        headToHead: {},
+        pointDifferential: 0,
+        points: 0,
+      };
+
+      teamIds.forEach(u => teamData[t].headToHead[u] = 0);
+    };
+
+    for (let round of eventData.bracket.roundRobin) {
+      for (let match of round) {
+        if (match.winner.length > 0) {
+          let winner = teamIdTag(match.children[roundRobinIsMatchWinner(match.children[0], match) ? 0 : 1]);
+          let d = match.scores.reduce((t, s) => t += s[0] - s[1], 0);
+
+          match.children.forEach((c, i, a) => {
+            let childTag = teamIdTag(c);
+            if (childTag === winner) {
+              teamData[childTag].wins += 1;
+              teamData[childTag].headToHead[teamIdTag(a[(i + 1) % 2])] = 1;
+              teamData[childTag].pointDifferential += d;
+              teamData[childTag].points += match.scores.map(s => s[0]).reduce((s, p) => s + p, 0);
+            } else {
+              teamData[childTag].pointDifferential -= d;
+              teamData[childTag].points += match.scores.map(s => s[1]).reduce((s, p) => s + p, 0);
+            }
+          });
+        }
+      }
+    }
+
+    let standings = sortArray(eventData.teams, t => {
+      let id = teamIdTag(t);
+
+      let h2hWins = teamIds
+        .filter(u => teamData[id].wins == teamData[u].wins)
+        .map(u => teamData[id].headToHead[u])
+        .reduce((s, w) => s + w, 0);
+
+      return [
+        teamData[id].wins,
+        h2hWins,
+        teamData[id].pointDifferential,
+        teamData[id].points,
+      ].join("-");
+    }).reverse();
+
+    return m("div.standings", [
+      m("h4.header.ordinal"),
+      m("h4.header", "Team"),
+      m("h4.header", "Wins"),
+      m("h4.header", "PD"),
+      standings.map(t => {
+        let id = teamIdTag(t);
+        let data = teamData[id];
+        let filtered = filter.length > 0 ? !nodeMatchesFilter(t, filter) : false;
+        return m.fragment({
+          key: id,
+        }, [
+          m("div.ordinal", { class: filtered ? "filtered" : undefined }),
+          m(Team, { team: t, link: true, class: filtered ? "filtered" : undefined }),
+          m("div.wins", { class: filtered ? "filtered" : undefined }, data.wins),
+          m("div.pd", { class: filtered ? "filtered" : undefined }, data.pointDifferential),
+        ]);
+      }),
     ]);
   }
 }
@@ -430,6 +516,7 @@ class RoundRobinRound {
   view(vnode) {
     let title = vnode.attrs.title;
     let round = vnode.attrs.round;
+    let filter = vnode.attrs.filter;
     let bye = eventData.teams
       .find(t => round
         .map(n => n.children
@@ -440,13 +527,19 @@ class RoundRobinRound {
 
     return m("div.round", [
       m("h3.title", title),
-      m("ul.matches", round.map((n, i) => m("li", m(RoundRobinMatch, { key: i, match: n })))),
-      bye ? m("div.bye", [
+      m("ul.matches", round
+        .map((n, i) => m("li", m(RoundRobinMatch, { key: i, match: n })))
+        .filter((n, i) => filter.length == 0 || round[i].children.some(c => nodeMatchesFilter(c, filter)))),
+      bye && filter.length == 0 || nodeMatchesFilter(bye, filter) ? m("div.bye", [
         m("p", "bye"),
         m(Team, { team: bye, link: false }),
       ]) : [],
     ]);
   }
+}
+
+function roundRobinIsMatchWinner(child, match) {
+  return match.winner.length > 0 && teamIdTag(match.winner) === teamIdTag(child);
 }
 
 class RoundRobinMatch {
@@ -455,7 +548,7 @@ class RoundRobinMatch {
 
     return m("div.match", [
       match.children.map(c => m(Team, {
-        class: match.winner.length > 0 ? (c.seed.every(p => match.winner.map(q => q.id).includes(p.id)) ? "winner" : "loser") : undefined,
+        class: match.winner.length > 0 ? (roundRobinIsMatchWinner(c, match) ? "winner" : "loser") : undefined,
         team: c.seed,
         link: false,
       })),
