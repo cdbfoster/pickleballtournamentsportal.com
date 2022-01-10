@@ -34,10 +34,10 @@ class Main {
   view() {
     return [
       m(EventInfo),
-      m(TeamList),
       eventData.bracket ? [
         eventData.bracket.hasOwnProperty("doubleElim") ? m(DoubleElimBracket) : m(RoundRobinBracket),
       ] : [],
+      m(TeamList),
     ]
   }
 }
@@ -530,7 +530,7 @@ class RoundRobinRound {
       m("ul.matches", round
         .map((n, i) => m("li", m(RoundRobinMatch, { key: i, match: n })))
         .filter((n, i) => filter.length == 0 || round[i].children.some(c => nodeMatchesFilter(c, filter)))),
-      bye && filter.length == 0 || nodeMatchesFilter(bye, filter) ? m("div.bye", [
+      bye && (filter.length == 0 || nodeMatchesFilter(bye, filter)) ? m("div.bye", [
         m("p", "bye"),
         m(Team, { team: bye, link: false }),
       ]) : [],
@@ -546,14 +546,19 @@ class RoundRobinMatch {
   view(vnode) {
     let match = vnode.attrs.match;
 
+    let teams = match.children.map(c => m(Team, {
+      class: match.winner.length > 0 ? (roundRobinIsMatchWinner(c, match) ? "winner" : "loser") : undefined,
+      team: c.seed,
+      link: false,
+    }));
+
     return m("div.match", [
-      match.children.map(c => m(Team, {
-        class: match.winner.length > 0 ? (roundRobinIsMatchWinner(c, match) ? "winner" : "loser") : undefined,
-        team: c.seed,
-        link: false,
-      })),
-      m("p.vs", "vs"),
-      m("ul.scores", match.scores.map(s => m("li", s.join("-")))),
+      teams[0],
+      m("div.vs", [
+        m("p", "vs"),
+        m("ul.scores", match.scores.map(s => m("li", s.join("-")))),
+      ]),
+      teams[1],
     ]);
   }
 }
