@@ -1124,8 +1124,46 @@ main {
     order: 1;
   }
 
-  #event #round-robin ~ #team-list > ul {
+  #event #event-info {
+    z-index: 2;
+  }
+
+  #event #bracket {
+    box-shadow: none;
+    height: calc(100vh - 5.5em);
+    margin: 0 -2.5em -2.5em;
+    padding-top: 2em;
+  }
+
+  #event #bracket ~ #team-list {
+    background-color: white;
+    box-shadow: 1px 5px 10px -5px rgba(0, 0, 0, 0.4);
+    margin: -1em -2em;
+    padding: 1em 2em;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  #event #bracket ~ #team-list > ul, #event #round-robin ~ #team-list > ul {
     display: none;
+  }
+
+  #event #team-list .filter {
+    margin-bottom: 0;
+  }
+}
+
+@media (max-width: 550px) {
+  #event #bracket {
+    height: calc(100vh - 4.25em);
+    margin: 0 -1.25em -1.25em;
+    padding-top: 1em;
+  }
+
+  #event #bracket ~ #team-list {
+    margin: -0.5em -1em;
+    padding: 0.5em 1em;
   }
 }
 
