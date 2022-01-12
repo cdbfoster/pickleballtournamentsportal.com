@@ -368,6 +368,7 @@ main {
   grid-template-areas:
     "link link"
     "logo name"
+    "logo location"
     "logo dates"
     "logo registration";
   grid-template-columns: auto 1fr;
@@ -414,6 +415,14 @@ main {
 
 #tournament #listing .dates .date:last-of-type:not(:first-of-type) {
   margin-left: 1em;
+}
+
+#tournament #listing .location {
+  color: white;
+  font-family: "Nunito", sans-serif;
+  grid-area: location;
+  margin: 0;
+  text-shadow: 0px 0px 15px black;
 }
 
 #tournament #listing .registration-status {
@@ -629,6 +638,7 @@ main {
     grid-template-areas:
       "link link"
       "logo name"
+      "location location"
       "dates dates"
       "registration registration";
     padding: 1em;

@@ -41,6 +41,7 @@ class Main {
         }, "View on PickleballTournaments.com"),
         tournamentData.listing.logoUrl !== null ? [m("img", { src: tournamentData.listing.logoUrl })] : [],
         m("h2.name", tournamentData.listing.name),
+        m("p.location", tournamentData.listing.location),
         m("p.dates", m.trust(datesString)),
         m(RegistrationStatus, { status: tournamentData.listing.registrationStatus }),
       ]),
