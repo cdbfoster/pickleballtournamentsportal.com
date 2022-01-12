@@ -556,7 +556,7 @@ class RoundRobinMatch {
       teams[0],
       m("div.vs", [
         m("p", "vs"),
-        m("ul.scores", match.scores.map(s => m("li", s.join("-")))),
+        m("ul.scores", match.scores.map(s => m("li", s.join("‑")))),
       ]),
       teams[1],
     ]);
